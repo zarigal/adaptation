@@ -31,7 +31,9 @@ The purpose of this network is to provide opportunities for education about clim
 
 ### The Problem
 
-Western redcedar is a super important tree species in the Pacific Northwest, but it may need our help to keep stay healthy. Unfortunately, we have observed a lot of redcedar trees dying recently and we're concerned about its survival in future climates. Is there anything we can do to help keep this species healthy?
+Western redcedar is a super important tree species in the Pacific Northwest, but it may need our help to stay healthy. Unfortunately, many redcedar trees have been observed dying recently and we're concerned about its survival in future climates. You can help accelerate research about the dieback by contributing to the [Western Redcedar Dieback Map](https://www.inaturalist.org/projects/western-redcedar-dieback-map) project.
+
+Is there anything we can do to help keep this species healthy?
 
 ### Possible Solution
 
@@ -72,7 +74,12 @@ The data of this project are maintained openly so others can participate and lea
   
 ![](./images/SwanCreekRedcedarPlantingInvite.jpg)  
 
-## Data {.tabset}
+## Preliminary Data {.tabset}
+
+Below you can explore some of the data available already. 
+> Note the trees were not stored in a manner to compare tree heights or diameters at this time. For example, we kept the trees separate to avoid accidentally mixing an Oregon tree with a Washington tree.
+
+We will want to monitor the change in heights and diameters each year for better answers to our questions.  
 
 ### Summary
 ```{r}
