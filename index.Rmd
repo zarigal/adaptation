@@ -12,7 +12,7 @@ library(tidyverse)
 ```
 
 
-![](./images/IMG_4938%20cropped.jpeg)
+![](./images/IMG_4938_cropped.jpeg)
 
 > Please note, this project, repository and webpage are still under development.
 
@@ -20,7 +20,18 @@ library(tidyverse)
 
 Welcome to the webpage for the Open Redcedar Adaptation Network! Here you will find information, resources, data, and examples of analyses for you to explore.
 
-Together we can study the climate adaptation potential of a super important tree to the Pacific Northwest.
+Together we can study the climate adaptation potential of a important tree to the Pacific Northwest. 
+
+### Get Involved
+
+Want to be involved or engage your students in this project? 
+
+Connect with us here: https://foresthealth.org/adaptation  
+
+**Join us for this tree planting in Tacoma on March 19th**
+
+![](./images/SwanCreekRedcedarPlantingInvite.jpg){ width=50% }
+
 
 ### Purpose
 
@@ -31,7 +42,7 @@ The purpose of this network is to provide opportunities for education about clim
 
 ### The Problem
 
-Western redcedar is a super important tree species in the Pacific Northwest, but it may need our help to stay healthy. Unfortunately, many redcedar trees have been observed dying recently and we're concerned about its survival in future climates. You can help accelerate research about the dieback by contributing to the [Western Redcedar Dieback Map](https://www.inaturalist.org/projects/western-redcedar-dieback-map) project.
+Western redcedar is a important tree species in the Pacific Northwest, but it may need our help to stay healthy. Unfortunately, many redcedar trees have been observed dying recently and we're concerned about its survival in future climates. You can help accelerate research about the dieback by contributing to the [Western Redcedar Dieback Map](https://www.inaturalist.org/projects/western-redcedar-dieback-map) project.
 
 Is there anything we can do to help keep this species healthy?
 
@@ -45,14 +56,13 @@ We've established a network of plantings with trees grown from populations in tw
 
 #### The Network
 
-There are four plantings of western redcedar trees throughout western Washington.
+There are three plantings of western redcedar trees throughout western Washington.
 
 -   Planting Locations
 
     -   Discovery Park, Seattle (Planted February 8, 2022)
     -   Swan Creek Park, Tacoma (Planting planned on March 19, 2022)
-    -   Black River Riparian Forest, Renton (Planting Date TBD)
-    -   Private Forest, Enumclaw (Planting planned on March 8th, 2022)
+    -   Black River Riparian Forest, Renton (Not Finalized, Planting Date TBD)
 
 Each planting location has or will have trees from both seed zones planted in rows.
 
@@ -62,39 +72,44 @@ Each planting location has or will have trees from both seed zones planted in ro
 
 The data of this project are maintained openly so others can participate and learn from the study. If you collect data, please consider sharing it here so others can benefit. More instructions coming soon!
 
-#### Partners and Supporters
 
-* The Open Redcedar Adaptation Network is powered by
-  + Washington State University
-  + Seattle Parks and Recreation
-  + MetroParks Tacoma
-  + City of Renton
-  + Manulife Investment Management
-  + Weyerhaeuser
   
-![](./images/SwanCreekRedcedarPlantingInvite.jpg)  
 
-## Preliminary Data {.tabset}
+### Preliminary Data {.tabset}
 
 Below you can explore some of the data available already. 
+
 > Note the trees were not stored in a manner to compare tree heights or diameters at this time. For example, we kept the trees separate to avoid accidentally mixing an Oregon tree with a Washington tree.
 
 We will want to monitor the change in heights and diameters each year for better answers to our questions.  
 
-### Summary
+#### Summary
 ```{r}
 redcedar <- read.csv("./data/WRC Tree Measurements 3.3.22.csv")
 summary(redcedar)
 ```
 
-### Tree Height 
+#### Tree Height 
 ```{r}
 ggplot(redcedar,aes(Seed.Zone,Tree.Height..cm.)) +geom_boxplot() +theme_bw()
 ```
 
-### Tree Diameter
+#### Tree Diameter
 ```{r}
 ggplot(redcedar,aes(Seed.Zone,Tree.Diameter..mm.)) +geom_boxplot() +theme_bw()
 ```
+
+
+### Collaborators, Partners and Supporters
+
+* The Open Redcedar Adaptation Network is powered by
+  + Washington State University
+  + Seattle Parks and Recreation
+  + MetroParks Tacoma
+  + Tacoma Tree Foundation
+  + City of Renton
+  + Manulife Investment Management
+  + Weyerhaeuser
   
-  
+This project is part of the [Forest Health Watch](https://foresthealth.org/) program.
+![](./images/VitalSignsRectangleBorder.png){ width=50% }
