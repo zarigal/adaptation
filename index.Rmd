@@ -14,6 +14,7 @@ library(tidyverse)
 
 ![](./images/IMG_4938_cropped.jpeg)
 
+
 > Please note, this project, repository and webpage are still under development.
 
 ### Welcome
@@ -21,6 +22,10 @@ library(tidyverse)
 Welcome to the webpage for the Open Redcedar Adaptation Network! Here you will find information, resources, data, and examples of analyses for you to explore.
 
 Together we can study the climate adaptation potential of a important tree to the Pacific Northwest. 
+
+### Help Shape this Project
+
+Want to help develop or co-produce the Open Redcedar Adaptation Network? Anyone is welcome. [Connect with us](https://foresthealth.org/adaptataion) and let us know you're interested.
 
 ### Get Involved
 
