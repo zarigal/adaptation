@@ -100,6 +100,11 @@ Link to Google Map with planting locations
 The data of this project are maintained openly so others can participate and learn from the study. If you collect data, please consider sharing it here so others can benefit. More instructions coming soon!
 
 
+##### Download Data
+
+Download the data by visiting: https://github.com/jmhulbert/adaptation
+
+
 ***  
 
 
