@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```{r include=FALSE}
 library(tidyverse)
+library(kableExtra)
 ```
 
 
@@ -23,9 +24,19 @@ Welcome to the webpage for the Open Redcedar Adaptation Network! Here you will f
 
 Together we can study the climate adaptation potential of a important tree to the Pacific Northwest. 
 
-### Help Shape this Project
+
+***
+
+
+### Help Shape This Project
 
 Want to help develop or co-produce the Open Redcedar Adaptation Network? Anyone is welcome. [Connect with us](https://foresthealth.org/adaptataion) and let us know you're interested.
+
+* Current co-production partners:
+  + [Tacoma Tree Foundation](https://www.tacomatreefoundation.org/)
+  + MetroParks Tacoma - [ChipIn Program](https://www.metroparkstacoma.org/volunteers/chip-in/)
+  + Seattle Parks and Recreation
+  + City of Renton Urban Forestry
 
 ### Get Involved
 
@@ -33,17 +44,16 @@ Want to be involved or engage your students in this project?
 
 Connect with us here: https://foresthealth.org/adaptation  
 
-**Join us for this tree planting in Tacoma on March 19th**
 
-![](./images/SwanCreekRedcedarPlantingInvite.jpg){ width=50% }
+***
 
 
 ### Purpose
 
 The purpose of this network is to provide opportunities for education about climate adaptation. Anyone is welcome to visit a planting site, measure trees to collect data, do some analyses, and share what they're learning!
 
-| ![](./images/IMG_9436.jpeg) | ![](./images/IMG_9407.jpeg) | ![](./images/IMG_9804.jpeg) | 
-|-----------------------------|-----------------------------|-----------------------------|
+|![](./images/IMG_9436.jpeg)|  |![](./images/IMG_9407.jpeg)|  |![](./images/IMG_9804.jpeg)| 
+|---------------------------|--|---------------------------|--|---------------------------|
 
 ### The Problem
 
@@ -55,30 +65,43 @@ Is there anything we can do to help keep this species healthy?
 
 Together we can explore the genetic diversity of western redcedar as a tool for keeping trees healthy. Here we are exploring genetic diversity in a climate adaptation study. Together we can investigate if trees adapted to climates in Oregon will be better suited for upcoming climates in Washington.
 
+***
+
 ### Study Approach
 
 We've established a network of plantings with trees grown from populations in two seed zones.
 
 #### The Network
 
-There are three plantings of western redcedar trees throughout western Washington.
+There are three plantings of western redcedar trees at three sites in western Washington.
 
--   Planting Locations
-
-    -   Discovery Park, Seattle (Planted February 8, 2022)
-    -   Swan Creek Park, Tacoma (Planting planned on March 19, 2022)
-    -   Black River Riparian Forest, Renton (Not Finalized, Planting Date TBD)
++ Planting Locations
+    + Discovery Park, Seattle (Planted February 8, 2022)
+    + Swan Creek Park, Tacoma (Planted March 19, 2022)
+    + Black River Riparian Forest, Renton (Planting Date TBD)
 
 Each planting location has or will have trees from both seed zones planted in rows.
 
-![Western redcedar planting at Discovery Park in Seattle](./images/IMG_9792.jpeg)
+|![Western redcedar planting at Discovery Park in Seattle](./images/IMG_9792.jpeg)| |![Volunteers planting trees at Swan Creek Park in Tacoma](./images/IMG_9982.jpeg)|
+|------------------------------------|--|------------------------------------|
+
+\
+
+[![](./images/GoogleMapScreenShot.jpg)](https://www.google.com/maps/d/u/1/edit?mid=1Up0ihN8qsqgXT49KyH1fZadYQfTPNbMs&usp=sharing)
+Link to Google Map with planting locations
+
+\
+
+
+
 
 #### Openness
 
 The data of this project are maintained openly so others can participate and learn from the study. If you collect data, please consider sharing it here so others can benefit. More instructions coming soon!
 
 
-  
+***  
+
 
 ### Preliminary Data {.tabset}
 
@@ -88,10 +111,16 @@ Below you can explore some of the data available already.
 
 We will want to monitor the change in heights and diameters each year for better answers to our questions.  
 
+#### Western redcedar plantings
+
+![Western redcedar planting at Swan Creek Park in Tacoma](./images/swan_creek_planting_banner.jpg)
+
 #### Summary
 ```{r}
-redcedar <- read.csv("./data/WRC Tree Measurements 3.3.22.csv")
-summary(redcedar)
+redcedar <- read.csv("./data/WRC Tree Measurements 3.28.22.csv")
+redcedar$Seed.Zone <-as.factor(redcedar$Seed.Zone)
+redcedar.summary <- redcedar %>% filter(Date.Measured!="") %>% group_by(Seed.Zone) %>% summarize(n=n(),mean.height=mean(Tree.Height..cm.),mean.diameter=mean(Tree.Diameter..mm.))
+kable(redcedar.summary,digits = 2) %>% kable_material(c("striped", "hover","condensed"))
 ```
 
 #### Tree Height 
@@ -104,6 +133,13 @@ ggplot(redcedar,aes(Seed.Zone,Tree.Height..cm.)) +geom_boxplot() +theme_bw()
 ggplot(redcedar,aes(Seed.Zone,Tree.Diameter..mm.)) +geom_boxplot() +theme_bw()
 ```
 
+\
+***
+\
+
+:::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 10px;"}
+
+::: {}
 
 ### Collaborators, Partners and Supporters
 
@@ -116,5 +152,16 @@ ggplot(redcedar,aes(Seed.Zone,Tree.Diameter..mm.)) +geom_boxplot() +theme_bw()
   + Manulife Investment Management
   + Weyerhaeuser
   
-This project is part of the [Forest Health Watch](https://foresthealth.org/) program.
-![](./images/VitalSignsRectangleBorder.png){ width=50% }
+This project is part of the [Forest Health Watch](https://foresthealth.org/) program.  
+:::
+
+::: {}
+\
+![](./images/VitalSignsRectangleBorder.png){width=75%}  
+:::
+::::
+
+
+```{r}
+knitr::include_url("https://www.google.com/maps/d/u/1/edit?mid=1Up0ihN8qsqgXT49KyH1fZadYQfTPNbMs&usp=sharing")
+```
