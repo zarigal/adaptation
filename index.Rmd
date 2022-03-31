@@ -100,25 +100,38 @@ Link to Google Map with planting locations
 The data of this project are maintained openly so others can participate and learn from the study. If you collect data, please consider sharing it here so others can benefit. More instructions coming soon!
 
 
-##### Download Data
 
-Download the data by visiting: https://github.com/jmhulbert/adaptation
 
 
 ***  
 
 
-### Preliminary Data {.tabset}
+### Preliminary Data {.tabset .tabset-fade}
 
 Below you can explore some of the data available already. 
 
 > Note the trees were not stored in a manner to compare tree heights or diameters at this time. For example, we kept the trees separate to avoid accidentally mixing an Oregon tree with a Washington tree.
 
-We will want to monitor the change in heights and diameters each year for better answers to our questions.  
+We will want to monitor the change in heights and diameters each year to compare between seed zones, sites, and annual clmate variables. 
 
-#### Western redcedar plantings
+#### Download Data
 
-![Western redcedar planting at Swan Creek Park in Tacoma](./images/swan_creek_planting_banner.jpg)
+This webpage and data are hosted in a github repository. The content on this page is compiled using R Markdown, but the data is maintained as a .csv file.
+
+Download the data by visiting:
+https://github.com/jmhulbert/adaptation
+
+Anyone is welcome to collaborate to add or make changes to the github repository (https://github.com/jmhulbert/adaptation). 
+
+* As a repository collaborator:
+  + You are welcome to clone the repository to your system and work from the R Project (adaptation.Rproj) file in Rstudio or you can make changes to the .csv file (./data/WRC Tree Measurements 3.28.22.csv).
+  + You can also make changes directly to the .csv file through your browser.
+  + Or you can make changes by downloading the .csv file, altering, committing and pushing it back to the repository.
+  + You can also drop new .csv files into the ./data/ folder in the repository. 
+
+Note that you need a github account to collaborate or make changes. Feel free to contact [JM Hulbert](https://github.com/jmhulbert) for additional details and instructions, or to request a change or addition.
+
+**Note that the Markdown (index.Rmd) file will need to be knit before the changes will be visible on this webpage.**
 
 #### Summary
 ```{r}
@@ -138,9 +151,16 @@ ggplot(redcedar,aes(Seed.Zone,Tree.Height..cm.)) +geom_boxplot() +theme_bw()
 ggplot(redcedar,aes(Seed.Zone,Tree.Diameter..mm.)) +geom_boxplot() +theme_bw()
 ```
 
+### 
+
+
 \
-***
+
+
+![Western redcedar planting at Swan Creek Park in Tacoma](./images/swan_creek_planting_banner.jpg)
+
 \
+
 
 :::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 10px;"}
 
