@@ -142,13 +142,13 @@ kable(redcedar.summary,digits = 2) %>% kable_material(c("striped", "hover","cond
 ```
 
 #### Tree Height 
-```{r}
-ggplot(redcedar,aes(Seed.Zone,Tree.Height..cm.)) +geom_boxplot() +theme_bw()
+```{r warning=FALSE}
+ggplot(redcedar,aes(Seed.Zone,Tree.Height..cm.)) +geom_violin() +geom_boxplot()  +theme_bw() 
 ```
 
 #### Tree Diameter
-```{r}
-ggplot(redcedar,aes(Seed.Zone,Tree.Diameter..mm.)) +geom_boxplot() +theme_bw()
+```{r warning=FALSE}
+ggplot(redcedar,aes(Seed.Zone,Tree.Diameter..mm.)) +geom_violin() +geom_boxplot() +theme_bw()
 ```
 
 ### 
@@ -187,6 +187,3 @@ This project is part of the [Forest Health Watch](https://foresthealth.org/) pro
 ::::
 
 
-```{r}
-knitr::include_url("https://www.google.com/maps/d/u/1/edit?mid=1Up0ihN8qsqgXT49KyH1fZadYQfTPNbMs&usp=sharing")
-```
