@@ -57,9 +57,9 @@ The purpose of this network is to provide opportunities for education about clim
 
 ### The Problem
 
-Western redcedar is a important tree species in the Pacific Northwest, but it may need our help to stay healthy. Unfortunately, many redcedar trees have been observed dying recently and we're concerned about its survival in future climates. You can help accelerate research about the dieback by contributing to the [Western Redcedar Dieback Map](https://www.inaturalist.org/projects/western-redcedar-dieback-map) project.
+Western redcedar is a important tree species in the Pacific Northwest, but it may need our help to stay healthy. Unfortunately, many redcedar trees have been observed dying recently and we're concerned about its survival in future climates. You can help accelerate research about the dieback by contributing to the [Western Redcedar Dieback Map](https://www.inaturalist.org/projects/western-redcedar-dieback-map) project. These observations are valuable for understanding why redcedar is unhealthy, but the next step is to explore what we can do about it.  
 
-Is there anything we can do to help keep this species healthy?
+*What can we do to help keep this species healthy?*
 
 ### Possible Solution
 
@@ -78,7 +78,7 @@ There are three plantings of western redcedar trees at three sites in western Wa
 + Planting Locations
     + Discovery Park, Seattle (Planted February 8, 2022)
     + Swan Creek Park, Tacoma (Planted March 19, 2022)
-    + Black River Riparian Forest, Renton (Planting Date TBD)
+    + Black River Riparian Forest, Renton (Planting Date May 7th or May 14th, 2022)
 
 Each planting location has or will have trees from both seed zones planted in rows.
 
@@ -124,7 +124,7 @@ https://github.com/jmhulbert/adaptation
 Anyone is welcome to collaborate to add or make changes to the github repository (https://github.com/jmhulbert/adaptation). 
 
 * As a repository collaborator:
-  + You are welcome to clone the repository to your system and work from the R Project (adaptation.Rproj) file in Rstudio or you can make changes to the .csv file (./data/WRC Tree Measurements 3.28.22.csv).
+  + You are welcome to clone the repository to your system and work from the R Project file (adaptation.Rproj) in Rstudio or you can make changes to the .csv file (./data/WRC Tree Measurements 3.28.22.csv).
   + You can also make changes directly to the .csv file through your browser.
   + Or you can make changes by downloading the .csv file, altering, committing and pushing it back to the repository.
   + You can also drop new .csv files into the ./data/ folder in the repository. 
