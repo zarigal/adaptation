@@ -63,13 +63,21 @@ Western redcedar is a important tree species in the Pacific Northwest, but it ma
 
 ### Possible Solution
 
-Together we can explore the genetic diversity of western redcedar as a tool for keeping trees healthy. Here we are exploring genetic diversity in a climate adaptation study. Together we can investigate if trees adapted to climates in Oregon will be better suited for upcoming climates in Washington.
+Together we can explore the genetic diversity of western redcedar as a tool for keeping trees healthy in a climate adaptation study. We can investigate if trees adapted to climates in Oregon will be better suited for upcoming climates in Washington.
 
 ***
 
 ### Study Approach
 
-We've established a network of plantings with trees grown from populations in two seed zones.
+We've established a network of plantings with trees grown from populations in two seed zones. Trees from each zone are planted in alternating rows at each site.
+
+* Trees from the following seed zones are planted at all sites.
+  + Willamette Valley, Oregon
+  + Lewis County, Washington
+
+> **Are trees from Oregon better adapted to future climates in Washington?** 
+You can help answer this question!
+
 
 #### The Network
 
