@@ -132,7 +132,7 @@ https://github.com/jmhulbert/adaptation
 Anyone is welcome to collaborate to add or make changes to the github repository (https://github.com/jmhulbert/adaptation). 
 
 * As a repository collaborator:
-  + You are welcome to clone the repository to your system and work from the R Project file (adaptation.Rproj) in Rstudio or you can make changes to the .csv file (./data/WRC Tree Measurements 3.28.22.csv).
+  + You are welcome to clone the repository to your system and work from the R Project file (adaptation.Rproj) in Rstudio or you can make changes to the .csv files (./data/).
   + You can also make changes directly to the .csv file through your browser.
   + Or you can make changes by downloading the .csv file, altering, committing and pushing it back to the repository.
   + You can also drop new .csv files into the ./data/ folder in the repository. 
@@ -142,25 +142,199 @@ Note that you need a github account to collaborate or make changes. Feel free to
 **Note that the Markdown (index.Rmd) file will need to be knit before the changes will be visible on this webpage.**
 
 #### Summary
+```{r warning=FALSE}
+y1 <- read.csv("./data/2022 Measurements.csv")
+y2 <- read.csv("./data/2023 Measurements.csv")
+y1$Measurement.Year <- 2022
+y1$Color <- ""
+y2$Measurement.Year <- 2023
+trees <- left_join(y1,y2,by=c("Site","Seed.Zone","Tree.Number")) %>% filter(Site!="Tomanamus" & Site!="") %>% droplevels()
+```
+
 ```{r}
-redcedar <- read.csv("./data/WRC Tree Measurements 3.28.22.csv")
-redcedar$Seed.Zone <-as.factor(redcedar$Seed.Zone)
-redcedar.summary <- redcedar %>% filter(Date.Measured!="") %>% group_by(Seed.Zone) %>% summarize(n=n(),mean.height=mean(Tree.Height..cm.),mean.diameter=mean(Tree.Diameter..mm.))
-kable(redcedar.summary,digits = 2) %>% kable_material(c("striped", "hover","condensed"))
+#changes made in excel
+#y1$Seed.Zone[y1$Seed.Zone=="WA "] <- "WA"
+#y1$X2022.Tree.Height..cm.[y1$X2022.Tree.Height..cm.==5408] <- 54.8
+#y1$X2022.Tree.Diameter..mm.[y1$X2022.Tree.Diameter..mm.==110.0] <- 11
+#y2$X2023.Tree.Diameter..mm.[y2X2022.Tree.Diameter..mm.==123] <- 12.3
+#y2$X2023.Tree.Diameter..mm.[y2X2022.Tree.Diameter..mm.==135] <- 13.5
+
+#2023 seattle OR data skipped tree number 14, moved 15, 16, 17 measurements up. 8 was missing
+#2023 seattle OR site was missing trees 42 and 43, but recorded trees 39-41 in 2023 were better fit for previous 2022 measurements for 41-43. However, trees were in different row. very confused. Wondering if trees OR42 and OR43 actually got moved to end of OR31 row somehow after site was mapped? 
+#2023 seattle OR last row trees 42,43, 46 and 50 were missing. However, tree number 45 fit better with tree 46, feeling confident tree recorded as 45 was actually 46, and 47 was actually missing because trees 47-49 were actually trees 48-50, adjusted
+#2023 Swan Creek WA #141 included a 40cm height increase, which must be a mistake. Recommend excluding all trees with greater than 30cm height increases from first analyses. 
+#2023 Swan Creek WA #171 included a 70cm height increase, which must be a mistake. Recommend excluding all trees with greater than 30cm height increases from first analyses. 
 ```
 
-#### Tree Height 
+
+
 ```{r warning=FALSE}
-ggplot(redcedar,aes(Seed.Zone,Tree.Height..cm.)) +geom_violin() +geom_boxplot()  +theme_bw() 
+trees$Date.Measured.x <- as.Date(trees$Date.Measured.x,"%m/%d/%y")
+trees$Date.Planted<- as.Date(trees$Date.Planted,"%m/%d/%y")
+trees$Date.Measured.y<- as.Date(trees$Date.Measured.y,"%m/%d/%y")
+trees$Measurement.Prior.Planting <- as.numeric(trees$Date.Planted-trees$Date.Measured.x)
+trees$Between.Measurements <-as.numeric(trees$Date.Measured.y-trees$Date.Measured.x)
+trees <- trees %>% mutate (height.increase = Tree.Height..cm..y-Tree.Height..cm..x,diameter.increase=Tree.Diameter..mm..y-Tree.Diameter..mm..x)
+trees$Site <- as.factor(trees$Site)
+trees$Seed.Zone <-as.factor(trees$Seed.Zone)
+trees$Health.y <- as.factor(trees$Health.y)
 ```
 
-#### Tree Diameter
+```{r}
+#y1$Seed.Zone[y1$Seed.Zone=="WA "] <- "WA"
+trees$Health.y[trees$Health.y==""] <- "Missing"
+trees$Health.y[trees$Health.y=="missing"] <- "Missing"
+trees <- trees %>% droplevels()
+```
+
+
+
+```{r}
+# FILTERED ALL TREES with NEGATIVE height increases or NEGATIVE diameter increases
+#Data cleaning
+#neg.trees <- trees %>% filter(height.increase<0)
+#neg.trees <- neg.trees[c(1,2,3,5,6,12,13,20,21)]
+#pos.trees <- trees %>% filter(height.increase>20)
+
+```
+
+
+```{r}
+trees.pos <- trees %>% filter(height.increase>0 & height.increase<24 & diameter.increase>0)  #a few possible mistakes in measurements with trees greater than 30cm height increase. Removing trees above 24 increase also removes Seattle OR Trees 39-41 which were off in measurements, trees were possibly moved after mapping? 
+```
+
+##### Number of Trees
+
+The below table lists the number of trees that were remeasured in 2023 at each site, excluding outliers. It also shares the number of days that trees were planted between measurements, and the number of days between the initial measurements and the planting date. 
+
+> Note the initial tree measuresments were collected on different days depending on the site (depending on when they would be planted). Therefore, comparisons between sites should be taken lightly. 
+
+```{r message=FALSE, warning=FALSE}
+Site.Summary <- trees.pos %>% group_by(Site,Seed.Zone) %>% summarize(n=n()) %>% left_join(.,trees.pos,by="Site",multiple="first")
+kable(Site.Summary[c(1,2,3,11,23,24)]) %>% kable_material(c("striped", "hover","condensed"))
+```
+
+
+For example, trees at the Seattle site were remeasured 430 days after intial measurements, where trees at the Renton site were remeasured 342 days after initial measurement. Therefore, trees at Seattle are likely not growing faster, but rather, had larger time interval between measurements. 
+
+---
+
+##### Mean Height and Diameter Increase
+
+The below table lists mean height and diameter increases between seed zones.  
+
+
 ```{r warning=FALSE}
-ggplot(redcedar,aes(Seed.Zone,Tree.Diameter..mm.)) +geom_violin() +geom_boxplot() +theme_bw()
+trees.summary <- trees.pos %>% group_by(Seed.Zone) %>% filter (height.increase>0)  %>% summarize(
+n=n(),
+y1mean.height=mean(Tree.Height..cm..x),
+y1mean.diameter=mean(Tree.Diameter..mm..x),
+y2mean.height=mean(Tree.Height..cm..y,na.rm=TRUE),
+y2mean.diameter=mean(Tree.Diameter..mm..y,na.rm=TRUE),
+mean.height.increase=mean(height.increase,na.rm=TRUE),
+mean.diameter.increase=mean(diameter.increase,na.rm=TRUE))
+kable(trees.summary[c(1,2,7,8)],digits = 2) %>% kable_material(c("striped", "hover","condensed"))
+```
+Trees from Oregon had a mean height increase of `r round(trees.summary$mean.height.increase[trees.summary$Seed.Zone=="OR"],2)`cm  and trees from Washington had a mean height increase of `r round(trees.summary$mean.height.increase[trees.summary$Seed.Zone=="WA"],2)`cm
+
+---
+
+##### Mean Increase by Site
+
+The table below provides the same data, expect the means were calculated across seed zones and sites. 
+
+
+```{r message=FALSE, warning=FALSE}
+trees.summary.sites <- trees.pos %>% group_by(Site,Seed.Zone) %>% summarize(
+n=n(),                                                                  y1mean.height=mean(Tree.Height..cm..x),
+y1mean.diameter=mean(Tree.Diameter..mm..x),
+y2mean.height=mean(Tree.Height..cm..y,na.rm=TRUE),
+y2mean.diameter=mean(Tree.Diameter..mm..y,na.rm=TRUE),
+mean.height.increase=mean(height.increase,na.rm=TRUE),
+mean.diameter.increase=mean(diameter.increase,na.rm=TRUE))
+
+kable(trees.summary.sites[c(1,2,3,8,9)],digits = 2) %>% kable_material(c("striped", "hover","condensed"))
 ```
 
-### 
+\
 
+#### Tree Height Increase
+
+The below plots show the distributions in increases in tree height for each seed zone.
+
+```{r warning=FALSE}
+ggplot(trees.pos,aes(Seed.Zone,height.increase)) +geom_violin() +geom_boxplot()  +theme_bw() 
+```
+
+\
+
+---
+
+The below plots show the distributions in increases in tree height for each seed zone and site
+
+```{r warning=FALSE}
+ggplot(trees.pos,aes(Seed.Zone,height.increase,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73"))
+```
+
+\
+
+#### Tree Diameter Increase
+
+The below plots show the distributions in increases in tree diameter for each seed zone
+
+```{r warning=FALSE}
+ggplot(trees.pos,aes(Seed.Zone,diameter.increase)) +geom_violin() +geom_boxplot() +theme_bw()
+```
+
+---
+
+\
+
+The below plots show the distributions in increases in tree diameter for each seed zone and site
+
+```{r warning=FALSE}
+ggplot(trees.pos,aes(Seed.Zone,diameter.increase,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73"))
+```
+
+#### Mortality
+
+```{r message=FALSE}
+trees.condition.zone <- trees %>% group_by(Seed.Zone,Health.y) %>% summarize(n=n()) %>% filter(Health.y!="NA")
+#kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
+```
+
+```{r}
+ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Health.y))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",fill="Health Condition") +geom_text(aes(label=n,group=Health.y),position = position_dodge2(width=0.9,reverse=TRUE))
+```
+
+---
+
+\
+
+
+```{r message=FALSE}
+trees.condition <- trees %>% group_by(Site,Seed.Zone,Health.y) %>% summarize(n=n()) %>% filter(Health.y!="NA")
+#kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
+```
+
+---
+
+```{r}
+trees.condition$Health.y <- factor(trees.condition$Health.y, levels=c('Alive','Dying','Dead','Missing'))
+```
+
+```{r}
+ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Health.y))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",fill="Health Condition") +geom_text(aes(label=n,group=Health.y),position = position_dodge2(width=0.9,reverse=TRUE))
+```
+
+
+
+
+\
+
+
+
+###
 
 \
 
