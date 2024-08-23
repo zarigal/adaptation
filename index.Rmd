@@ -10,33 +10,36 @@ knitr::opts_chunk$set(echo = FALSE)
 ```{r include=FALSE}
 library(tidyverse)
 library(kableExtra)
+library(patchwork)
 ```
 
 
 ![](./images/IMG_4938_cropped.jpeg)
 
 
-> Please note, this project, repository and webpage are still under development.
-
 ### Welcome
 
 Welcome to the webpage for the Open Redcedar Adaptation Network! Here you will find information, resources, data, and examples of analyses for you to explore.
 
-Together we can study the climate adaptation potential of a important tree to the Pacific Northwest. 
+You are welcome to participate in a small project to explore options for conserving western redcedar. The project was designed as an open demonstration where communities can participate in the stewardship, monitoring, and comparison of redcedar trees grown from two seed sources. 
 
+Together we can study the climate adaptation potential of this important tree species to the Pacific Northwest. 
 
 ***
 
 
 ### Help Shape This Project
 
-Want to help develop or co-produce the Open Redcedar Adaptation Network? Anyone is welcome. [Connect with us](https://foresthealth.org/adaptataion) and let us know you're interested.
+Want to help develop or co-produce the Open Redcedar Adaptation Network? Anyone is welcome. [Connect with us](https://foresthealth.org/adaptation) and let us know you're interested.
 
-* Current co-production partners:
+* Current co-production partners and site stewards:
   + Lowell Wyse, [Tacoma Tree Foundation](https://www.tacomatreefoundation.org/)
-  + Amy Boucher, MetroParks Tacoma - [ChipIn Program](https://www.metroparkstacoma.org/volunteers/chip-in/)
-  + Michael Yadrick, Seattle Parks and Recreation
-  + Ian Gray, City of Renton Urban Forestry
+  + Chloe Nelson, Metro Parks Tacoma - [ChipIn Program](https://www.metroparkstacoma.org/volunteers/chip-in/)
+  + Michael Yadrick, City of Tacoma - Environmental Services
+  + Eric Sterner, Seattle Parks and Recreation
+  + Lindsay Malone, Green Seattle Partnership Site Steward at Discovery Park
+  + Ian Gray, City of Renton - Urban Forestry
+  + Ciara Fenimore and Cinnamon Bear, Manulife
 
 ### Get Involved
 
@@ -118,9 +121,9 @@ The data of this project are maintained openly so others can participate and lea
 
 Below you can explore some of the data available already. 
 
-> Note the trees were not stored in a manner to compare tree heights or diameters at this time. For example, we kept the trees separate to avoid accidentally mixing an Oregon tree with a Washington tree.
+> Note the trees were not stored in a manner to compare tree heights or diameters in the first measurement. For example, before planting, we kept the trees separate to avoid accidentally mixing an Oregon tree with a Washington tree.
 
-We will want to monitor the change in heights and diameters each year to compare between seed zones, sites, and annual clmate variables. 
+We plan to monitor the change in heights and diameters each year to compare between seed zones, sites, and annual climate variables. 
 
 #### Download Data
 
@@ -139,20 +142,12 @@ Anyone is welcome to collaborate to add or make changes to the github repository
 
 Note that you need a github account to collaborate or make changes. Feel free to contact [JM Hulbert](https://github.com/jmhulbert) for additional details and instructions, or to request a change or addition.
 
-**Note that the Markdown (index.Rmd) file will need to be knit before the changes will be visible on this webpage.**
+**Note the Markdown (index.Rmd) file will need to be knit before the changes will be visible on this webpage.**
 
 #### Summary
-```{r warning=FALSE}
-y1 <- read.csv("./data/2022 Measurements.csv")
-y2 <- read.csv("./data/2023 Measurements.csv")
-y1$Measurement.Year <- 2022
-y1$Color <- ""
-y2$Measurement.Year <- 2023
-trees <- left_join(y1,y2,by=c("Site","Seed.Zone","Tree.Number")) %>% filter(Site!="Tomanamus" & Site!="") %>% droplevels()
-```
 
 ```{r}
-#changes made in excel
+#2023 changes made in excel 
 #y1$Seed.Zone[y1$Seed.Zone=="WA "] <- "WA"
 #y1$X2022.Tree.Height..cm.[y1$X2022.Tree.Height..cm.==5408] <- 54.8
 #y1$X2022.Tree.Diameter..mm.[y1$X2022.Tree.Diameter..mm.==110.0] <- 11
@@ -167,55 +162,151 @@ trees <- left_join(y1,y2,by=c("Site","Seed.Zone","Tree.Number")) %>% filter(Site
 ```
 
 
-
 ```{r warning=FALSE}
-trees$Date.Measured.x <- as.Date(trees$Date.Measured.x,"%m/%d/%y")
-trees$Date.Planted<- as.Date(trees$Date.Planted,"%m/%d/%y")
-trees$Date.Measured.y<- as.Date(trees$Date.Measured.y,"%m/%d/%y")
-trees$Measurement.Prior.Planting <- as.numeric(trees$Date.Planted-trees$Date.Measured.x)
-trees$Between.Measurements <-as.numeric(trees$Date.Measured.y-trees$Date.Measured.x)
-trees <- trees %>% mutate (height.increase = Tree.Height..cm..y-Tree.Height..cm..x,diameter.increase=Tree.Diameter..mm..y-Tree.Diameter..mm..x)
-trees$Site <- as.factor(trees$Site)
-trees$Seed.Zone <-as.factor(trees$Seed.Zone)
-trees$Health.y <- as.factor(trees$Health.y)
+y1 <- read.csv("./data/2022 Measurements.csv")
+y2 <- read.csv("./data/2023 Measurements.csv")
+y3 <- read.csv("./data/2024 Measurementsv3.csv")
+
+y1$Measurement.Year <- 2022
+y2$Measurement.Year <- 2023
+y3$Measurement.Year <- 2024
+
+y1 <- y1 %>% mutate(Temp.Tree.Number = row_number())
+
+y1 <- y1 %>% select(-c("Year.Measured","Color"))
+y2 <- y2 %>% select(-c("Year.Measured","Color"))
+y3 <- y3 %>% select(-c("Year.Measured"))
 ```
 
 ```{r}
-#y1$Seed.Zone[y1$Seed.Zone=="WA "] <- "WA"
-trees$Health.y[trees$Health.y==""] <- "Missing"
-trees$Health.y[trees$Health.y=="missing"] <- "Missing"
-trees <- trees %>% droplevels()
+trees.bind <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% filter(Site!="Tomanamus" & Site!="" & Site!="Puyallup") %>% droplevels()
+```
+
+```{r}
+trees.bind$Health[trees.bind$Health==""] <- "Missing"
+trees.bind$Health[trees.bind$Health=="missing"] <- "Missing"
+trees.bind$Seed.Zone[trees.bind$Seed.Zone=="Wa"] <- "WA"
+trees.bind <- trees.bind %>% droplevels()
+```
+
+```{r}
+trees.bind <- trees.bind %>% group_by(Tree.Number, Site, Seed.Zone) %>% mutate(New.Tree.Number = if_else(is.na(New.Tree.Number),first(na.omit(New.Tree.Number)),New.Tree.Number)) %>%ungroup()
+
+trees.bind <- trees.bind %>% group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Temp.Tree.Number = if_else(is.na(Temp.Tree.Number),first(na.omit(Temp.Tree.Number)),Temp.Tree.Number)) %>%ungroup()
+
+trees.bind <- trees.bind %>%  group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Date.Planted = if_else(is.na(Date.Planted),first(na.omit(Date.Planted)),Date.Planted)) %>%ungroup()
+
+trees.bind <- trees.bind %>%  group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Final.Health = if_else(Measurement.Year == 2024, ifelse(is.na(Health),first(na.omit(Health)),Health),first(na.omit(Health)),Health)) %>% ungroup()
 ```
 
 
+```{r}
+trees.bind$Date.Measured <- as.Date(trees.bind$Date.Measured,"%m/%d/%y")
+trees.bind$Date.Planted <- as.Date(trees.bind$Date.Planted,"%m/%d/%y")
+
+trees.bind <- trees.bind %>% mutate(Planted.Growth.Days=Date.Measured-Date.Planted)
+```
+
+```{r}
+trees <- trees.bind
+```
+
+```{r}
+trees$Site <- as.factor(trees$Site)
+trees$Seed.Zone <-as.factor(trees$Seed.Zone)
+trees$Health <- as.factor(trees$Health)
+```
+
+```{r}
+# NOTE RENTON OR TREE 180 was entered twice or there is two values for it. We need to look into this further, but for now we removed it from the data.
+```
+
+```{r}
+trees <- trees %>% filter(Tree.Number!=180 | Site!="Renton" | Seed.Zone!="OR")
+```
+
+```{r}
+trees.wide <- trees %>% pivot_wider(
+    id_cols = c(Tree.Number, Site, Seed.Zone, New.Tree.Number),
+    names_from = Measurement.Year,
+    values_from = c(Tree.Height..cm., Tree.Diameter..mm.),
+    names_glue = "{.value}_{Measurement.Year}") 
+```
+
+```{r} 
+# see if there are any duplicate trees based on number, site, seed zone and year
+#{trees} |> summarize(n = n(), .by = c(Tree.Number, Site, Seed.Zone, Measurement.Year)) |> filter(n > 1L)
+```
+
+```{r}
+trees.wide.growth <- trees.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, total.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2022)
+```
+
+```{r}
+#trees.partial <- trees[1,2,3,9,11,12,13]
+#trees.wide.joined <- left_join(trees.wide.growth, trees.partial, by=c("Tree.Number", "Site", "Seed.Zone"))
+```
+
+```{r}
+#tree.growth <- trees %>% group_by(Tree.Number, Site, Seed.Zone) %>% arrange(Measurement.Year) %>% mutate(Height.Growth = Tree.Height..cm. - lag(Tree.Height..cm.), Diameter.Growth = Tree.Diameter..mm. - lag(Tree.Diameter..mm.)) %>% ungroup()
+```
+
+```{r}
+#tree.growth.year <- tree.growth %>% group_by(Tree.Number, Site, Seed.Zone, Measurement.Year) %>% reframe(Heigh.Growth=Height.Growth,Diameter.Growth=Diameter.Growth)
+```
+
+```{r}
+#trees <- left_join(trees,tree.growth.year, by=c("Tree.Number", "Site", "Seed.Zone", "Measurement.Year"))
+```
 
 ```{r}
 # FILTERED ALL TREES with NEGATIVE height increases or NEGATIVE diameter increases
 #Data cleaning
-#neg.trees <- trees %>% filter(height.increase<0)
+#neg.trees <- trees %>% filter(Height.Growth<0)
 #neg.trees <- neg.trees[c(1,2,3,5,6,12,13,20,21)]
-#pos.trees <- trees %>% filter(height.increase>20)
-
+#pos.trees <- trees %>% filter(Height.Growth>20)
 ```
-
 
 ```{r}
-trees.pos <- trees %>% filter(height.increase>0 & height.increase<24 & diameter.increase>0)  #a few possible mistakes in measurements with trees greater than 30cm height increase. Removing trees above 24 increase also removes Seattle OR Trees 39-41 which were off in measurements, trees were possibly moved after mapping? 
+#trees.pos <- tree.growth %>% filter(Height.Growth>0 & Diameter.Growth>0)  
 ```
 
-##### Number of Trees
+```{r}
+trees.wide.pos.total <- trees.wide.growth %>% filter(total.height.growth>0 & total.diameter.growth>0)
+trees.wide.pos.y1 <- trees.wide.growth %>% filter(y1.height.growth>0 & y1.diameter.growth>0)
+trees.wide.pos.y2 <- trees.wide.growth %>% filter(y2.height.growth>0 & y2.diameter.growth>0)
+trees.wide.pos.all <- trees.wide.growth %>% filter(y1.height.growth>0 & y1.diameter.growth>0 & y2.height.growth>0 & y2.diameter.growth>0)
+```
 
-The below table lists the number of trees that were remeasured in 2023 at each site, excluding outliers. It also shares the number of days that trees were planted between measurements, and the number of days between the initial measurements and the planting date. 
+```{r}
+#a few possible mistakes in measurements with trees greater than 30cm height increase. Removing trees above 24 increase also removes Seattle OR Trees 39-41 which were off in measurements, trees were possibly moved after mapping? 
+```
+
+##### Site Plantings and Measurements
+
+Summary coming soon.
+
+```{r}
+#create table summarizing when sites were planted and remeasured.
+```
+
 
 > Note the initial tree measuresments were collected on different days depending on the site (depending on when they would be planted). Therefore, comparisons between sites should be taken lightly. 
 
-```{r message=FALSE, warning=FALSE}
-Site.Summary <- trees.pos %>% group_by(Site,Seed.Zone) %>% summarize(n=n()) %>% left_join(.,trees.pos,by="Site",multiple="first")
-kable(Site.Summary[c(1,2,3,11,23,24)]) %>% kable_material(c("striped", "hover","condensed"))
-```
-
-
 For example, trees at the Seattle site were remeasured 430 days after intial measurements, where trees at the Renton site were remeasured 342 days after initial measurement. Therefore, trees at Seattle are likely not growing faster, but rather, had larger time interval between measurements. 
+
+##### Number of Trees
+
+The below table lists the number of trees that were remeasured in 2024 at each site, excluding outliers. 
+
+> Note, this table only includes trees that had positive height and diameter growth. For example, some trees were heavily browsed in 2024 and therefore may be shorter than trees in 2023. 
+
+```{r message=FALSE, warning=FALSE}
+#Site.Summary <- trees.pos %>% group_by(Site,Seed.Zone,Measurement.Year) %>% summarize(n=n()) %>% left_join(.,trees.pos,by=c("Site","Seed.Zone","Measurement.Year"),multiple="first")
+
+Site.Summary <- trees.wide.pos.all %>% group_by(Site,Seed.Zone) %>% summarize(n=n())
+kable(Site.Summary[c(1,2,3)]) %>% kable_material(c("striped", "hover","condensed"))
+```
 
 ---
 
@@ -225,17 +316,20 @@ The below table lists mean height and diameter increases between seed zones.
 
 
 ```{r warning=FALSE}
-trees.summary <- trees.pos %>% group_by(Seed.Zone) %>% filter (height.increase>0)  %>% summarize(
+trees.summary <- trees.wide.pos.all %>% group_by(Seed.Zone)  %>% summarize(
 n=n(),
-y1mean.height=mean(Tree.Height..cm..x),
-y1mean.diameter=mean(Tree.Diameter..mm..x),
-y2mean.height=mean(Tree.Height..cm..y,na.rm=TRUE),
-y2mean.diameter=mean(Tree.Diameter..mm..y,na.rm=TRUE),
-mean.height.increase=mean(height.increase,na.rm=TRUE),
-mean.diameter.increase=mean(diameter.increase,na.rm=TRUE))
-kable(trees.summary[c(1,2,7,8)],digits = 2) %>% kable_material(c("striped", "hover","condensed"))
+mean.height.2024=mean(Tree.Height..cm._2024),
+mean.diameter.2024=mean(Tree.Diameter..mm._2024),
+mean.y1.height.growth=mean(y1.height.growth,na.rm=TRUE),
+mean.y1.diameter.growth=mean(y1.diameter.growth,na.rm=TRUE),
+mean.y2.height.growth=mean(y2.height.growth,na.rm=TRUE),
+mean.y2.diameter.growth=mean(y2.diameter.growth,na.rm=TRUE),
+mean.total.height.growth=mean(total.height.growth,na.rm=TRUE),
+mean.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
+kable(trees.summary,digits = 2,format = "html", table.attr='class="scrollable-table"') %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
 ```
-Trees from Oregon had a mean height increase of `r round(trees.summary$mean.height.increase[trees.summary$Seed.Zone=="OR"],2)`cm  and trees from Washington had a mean height increase of `r round(trees.summary$mean.height.increase[trees.summary$Seed.Zone=="WA"],2)`cm
+
+Trees from Oregon had a mean total height increase of `r round(trees.summary$mean.total.height.growth[trees.summary$Seed.Zone=="OR"],2)`cm and trees from Washington had a mean total height increase of `r round(trees.summary$mean.total.height.growth[trees.summary$Seed.Zone=="WA"],2)`cm.
 
 ---
 
@@ -245,15 +339,17 @@ The table below provides the same data, expect the means were calculated across 
 
 
 ```{r message=FALSE, warning=FALSE}
-trees.summary.sites <- trees.pos %>% group_by(Site,Seed.Zone) %>% summarize(
-n=n(),                                                                  y1mean.height=mean(Tree.Height..cm..x),
-y1mean.diameter=mean(Tree.Diameter..mm..x),
-y2mean.height=mean(Tree.Height..cm..y,na.rm=TRUE),
-y2mean.diameter=mean(Tree.Diameter..mm..y,na.rm=TRUE),
-mean.height.increase=mean(height.increase,na.rm=TRUE),
-mean.diameter.increase=mean(diameter.increase,na.rm=TRUE))
-
-kable(trees.summary.sites[c(1,2,3,8,9)],digits = 2) %>% kable_material(c("striped", "hover","condensed"))
+trees.summary.sites <- trees.wide.pos.all %>% group_by(Site,Seed.Zone)  %>% summarize(
+n=n(),
+mean.height.2024=mean(Tree.Height..cm._2024),
+mean.diameter.2024=mean(Tree.Diameter..mm._2024),
+mean.y1.height.growth=mean(y1.height.growth,na.rm=TRUE),
+mean.y1.diameter.growth=mean(y1.diameter.growth,na.rm=TRUE),
+mean.y2.height.growth=mean(y2.height.growth,na.rm=TRUE),
+mean.y2.diameter.growth=mean(y2.diameter.growth,na.rm=TRUE),
+mean.total.height.growth=mean(total.height.growth,na.rm=TRUE),
+mean.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
+kable(trees.summary.sites,digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
 ```
 
 \
@@ -262,9 +358,15 @@ kable(trees.summary.sites[c(1,2,3,8,9)],digits = 2) %>% kable_material(c("stripe
 
 The below plots show the distributions in increases in tree height for each seed zone.
 
-```{r warning=FALSE}
-ggplot(trees.pos,aes(Seed.Zone,height.increase)) +geom_violin() +geom_boxplot()  +theme_bw() 
+```{r}
+
+P1 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y1.height.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill=FALSE) +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Year 1 Height Growth", x= "Seed Source") 
+P2 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y2.height.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill=FALSE) +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Year 2 Height Growth",x= "Seed Source")
+P3 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill=FALSE) +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Total Height Growth",x= "Seed Source")
+
+P1 + P2 + P3
 ```
+
 
 \
 
@@ -273,7 +375,7 @@ ggplot(trees.pos,aes(Seed.Zone,height.increase)) +geom_violin() +geom_boxplot() 
 The below plots show the distributions in increases in tree height for each seed zone and site
 
 ```{r warning=FALSE}
-ggplot(trees.pos,aes(Seed.Zone,height.increase,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73"))
+ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73"))
 ```
 
 \
@@ -283,7 +385,11 @@ ggplot(trees.pos,aes(Seed.Zone,height.increase,fill=Site)) +geom_boxplot() +them
 The below plots show the distributions in increases in tree diameter for each seed zone
 
 ```{r warning=FALSE}
-ggplot(trees.pos,aes(Seed.Zone,diameter.increase)) +geom_violin() +geom_boxplot() +theme_bw()
+P1 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y1.diameter.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill=FALSE) +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Year 1 Diameter Growth", x= "Seed Source") 
+P2 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y2.diameter.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill=FALSE) +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Year 2 Diameter Growth",x= "Seed Source")
+P3 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill=FALSE) +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Total Diameter Growth",x= "Seed Source")
+
+P1 + P2 + P3
 ```
 
 ---
@@ -293,18 +399,18 @@ ggplot(trees.pos,aes(Seed.Zone,diameter.increase)) +geom_violin() +geom_boxplot(
 The below plots show the distributions in increases in tree diameter for each seed zone and site
 
 ```{r warning=FALSE}
-ggplot(trees.pos,aes(Seed.Zone,diameter.increase,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73"))
+ggplot(trees.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73"))
 ```
 
 #### Mortality
 
 ```{r message=FALSE}
-trees.condition.zone <- trees %>% group_by(Seed.Zone,Health.y) %>% summarize(n=n()) %>% filter(Health.y!="NA")
+trees.condition.zone <- trees %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
 #kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
 ```
 
 ```{r}
-ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Health.y))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",fill="Health Condition") +geom_text(aes(label=n,group=Health.y),position = position_dodge2(width=0.9,reverse=TRUE))
+ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Final.Health))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+ scale_y_continuous(breaks = c(0,25,50,75,100,125,150),expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1)
 ```
 
 ---
@@ -312,19 +418,21 @@ ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Health.y))+geo
 \
 
 
-```{r message=FALSE}
-trees.condition <- trees %>% group_by(Site,Seed.Zone,Health.y) %>% summarize(n=n()) %>% filter(Health.y!="NA")
-#kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
-```
+
 
 ---
 
-```{r}
-trees.condition$Health.y <- factor(trees.condition$Health.y, levels=c('Alive','Dying','Dead','Missing'))
+```{r message=FALSE}
+trees.condition <- trees %>% group_by(Site,Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+#kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
 ```
 
 ```{r}
-ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Health.y))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",fill="Health Condition") +geom_text(aes(label=n,group=Health.y),position = position_dodge2(width=0.9,reverse=TRUE))
+trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dying','Dead','Missing'))
+```
+
+```{r}
+ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip() + scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1)
 ```
 
 
@@ -353,7 +461,7 @@ ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Health.y))+facet_wrap(~S
 * The Open Redcedar Adaptation Network is powered by
   + Washington State University
   + Seattle Parks and Recreation
-  + MetroParks Tacoma
+  + Metro Parks Tacoma
   + Tacoma Tree Foundation
   + City of Renton
   + Manulife Investment Management
