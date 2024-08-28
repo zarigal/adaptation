@@ -164,7 +164,7 @@ Note that you need a github account to collaborate or make changes. Feel free to
 
 ```{r warning=FALSE}
 y1 <- read.csv("./data/2022 Measurements.csv")
-y2 <- read.csv("./data/2023 Measurements.csv")
+y2 <- read.csv("./data/2023 MeasurementsCorrected.csv")
 y3 <- read.csv("./data/2024 Measurementsv3.csv")
 
 y1$Measurement.Year <- 2022
