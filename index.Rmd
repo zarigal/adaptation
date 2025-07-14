@@ -166,20 +166,25 @@ Note that you need a github account to collaborate or make changes. Feel free to
 y1 <- read.csv("./data/2022 Measurements.csv")
 y2 <- read.csv("./data/2023 MeasurementsCorrected.csv")
 y3 <- read.csv("./data/2024 Measurementsv3.csv")
+library(readxl)
+y4 <- read_excel("data/2025 Measurements.xlsx")
 
 y1$Measurement.Year <- 2022
 y2$Measurement.Year <- 2023
 y3$Measurement.Year <- 2024
+y4$Measurement.Year <- 2025
 
 y1 <- y1 %>% mutate(Temp.Tree.Number = row_number())
 
-y1 <- y1 %>% select(-c("Year.Measured","Color"))
+y1 <- y1 %>% select(-c("Year.Measured","Color","Temp.Tree.Number"))
 y2 <- y2 %>% select(-c("Year.Measured","Color"))
-y3 <- y3 %>% select(-c("Year.Measured"))
+y3 <- y3 %>% select(-c("Year.Measured","New.Tree.Number"))
+y4 <- y4 %>% select(-c("Year Measured","Color"))
+
 ```
 
 ```{r}
-trees.bind <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% filter(Site!="Tomanamus" & Site!="" & Site!="Puyallup") %>% droplevels()
+trees.bind <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% bind_rows(.,y4) %>% filter(Site!="Tomanamus" & Site!="" & Site!="Puyallup") %>% droplevels()
 ```
 
 ```{r}
