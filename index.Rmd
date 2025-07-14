@@ -167,18 +167,36 @@ y1 <- read.csv("./data/2022 Measurements.csv")
 y2 <- read.csv("./data/2023 MeasurementsCorrected.csv")
 y3 <- read.csv("./data/2024 Measurementsv3.csv")
 library(readxl)
-y4 <- read_excel("data/2025 Measurements.xlsx")
+sheet2025 <- read_excel("data/2025 Measurements.xlsx", 
+    sheet = "2025")
+rough2025 <- read_excel("data/2025 Measurements.xlsx", 
+    sheet = "2025 rough draft")
 
 y1$Measurement.Year <- 2022
 y2$Measurement.Year <- 2023
 y3$Measurement.Year <- 2024
-y4$Measurement.Year <- 2025
+
+#rename columns to merge
+rough2025 <- rough2025 %>% 
+  rename("New Tree Number" = "Tree #") %>%
+  rename("Tree Diameter (mm)" = "DBH") %>%
+  rename("Tree Height (cm)" = "Height") %>%
+  rename("Health" = "Condition") %>%
+  rename("Date Measured" = "Measure Date") %>%
+  rename("Comment" = "Comments")
+
+#merge two sheets together based on tree number
+merged2025 <- rough2025 %>%
+full_join(rough2025, by = intersect(colnames(sheet2025), colnames(rough2025)), na_matches = c("never")) %>%
+  group_by(`New Tree Number`)
+#need to figure out how to keep seed zone from 2nd sheet
 
 y1 <- y1 %>% mutate(Temp.Tree.Number = row_number())
+y4$`Tree Number`<- y4$Tree.Number 
 
-y1 <- y1 %>% select(-c("Year.Measured","Color","Temp.Tree.Number"))
+y1 <- y1 %>% select(-c("Year.Measured","Color"))
 y2 <- y2 %>% select(-c("Year.Measured","Color"))
-y3 <- y3 %>% select(-c("Year.Measured","New.Tree.Number"))
+y3 <- y3 %>% select(-c("Year.Measured"))
 y4 <- y4 %>% select(-c("Year Measured","Color"))
 
 ```
@@ -201,7 +219,7 @@ trees.bind <- trees.bind %>% group_by(Tree.Number, Site, Seed.Zone) %>% mutate(T
 
 trees.bind <- trees.bind %>%  group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Date.Planted = if_else(is.na(Date.Planted),first(na.omit(Date.Planted)),Date.Planted)) %>%ungroup()
 
-trees.bind <- trees.bind %>%  group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Final.Health = if_else(Measurement.Year == 2024, ifelse(is.na(Health),first(na.omit(Health)),Health),first(na.omit(Health)),Health)) %>% ungroup()
+trees.bind <- trees.bind %>%  group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Final.Health = if_else(Measurement.Year == 2025, ifelse(is.na(Health),first(na.omit(Health)),Health),first(na.omit(Health)),Health)) %>% ungroup()
 ```
 
 
