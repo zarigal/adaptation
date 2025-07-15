@@ -9,7 +9,9 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```{r include=FALSE}
 library(tidyverse)
+install.packages("kableExtra")
 library(kableExtra)
+install.packages("patchwork")
 library(patchwork)
 ```
 
@@ -185,23 +187,54 @@ rough2025 <- rough2025 %>%
   rename("Date Measured" = "Measure Date") %>%
   rename("Comment" = "Comments")
 
+rough2025 <- rough2025 %>%
+    mutate(Site = recode(Site, 'Discovery Park' = 'Seattle'))
+
 #merge two sheets together based on tree number
+
+sheet2025 <- sheet2025 %>%
+  mutate(`New Tree Number` = coalesce(`New Tree Number`,`Tree Number`))
+         
 merged2025 <- rough2025 %>%
-full_join(rough2025, by = intersect(colnames(sheet2025), colnames(rough2025)), na_matches = c("never")) %>%
+full_join(rough2025, by = intersect(colnames(sheet2025), colnames(rough2025))) %>%
   group_by(`New Tree Number`)
-#need to figure out how to keep seed zone from 2nd sheet
+#merged seed zone from 2025 to merged sheet
+merged2025 <- merged2025 %>% group_by(`New Tree Number`, Site, `Seed Zone`) %>%
+  left_join(merged2025, sheet2025[,c("New Tree Number", "Seed Zone")], by="New Tree Number") %>% ungroup()
+y4 <- merged2025 %>% select(-c("Seed Zone.x"))
+y4 <- y4 %>%
+  rename("Seed Zone" = "Seed Zone.y")
+y4 <- cbind(y4, Measurement.Year= 2025)
 
+#add tree numbers for first year
 y1 <- y1 %>% mutate(Temp.Tree.Number = row_number())
-y4$`Tree Number`<- y4$Tree.Number 
 
+#remove unnecessary columns
 y1 <- y1 %>% select(-c("Year.Measured","Color"))
 y2 <- y2 %>% select(-c("Year.Measured","Color"))
 y3 <- y3 %>% select(-c("Year.Measured"))
-y4 <- y4 %>% select(-c("Year Measured","Color"))
+
+#rename columns to match other years
+y4 <- y4 %>% 
+  rename("New.Tree.Number" = "New Tree Number") %>%
+  rename("Tree.Height..cm." = "Tree Height (cm)") %>%
+  rename("Tree.Diameter..mm." = "Tree Diameter (mm)") %>%
+  rename("Seed.Zone" = "Seed Zone") %>%
+  rename("Date.Measured" = "Date Measured")
+
+y4 <- y4 %>%
+    mutate(Site = recode(Site, 'Discovery Park' = 'Seattle'))
 
 ```
 
 ```{r}
+#change date format to match year 4
+y1$Date.Measured <- as.Date(y1$Date.Measured,"%m/%d/%y")
+y1$Date.Planted <- as.Date(y1$Date.Planted,"%m/%d/%y")
+y2$Date.Measured <- as.Date(y2$Date.Measured,"%m/%d/%y")
+y3$Date.Measured <- as.Date(y3$Date.Measured,"%m/%d/%y")
+
+#bind all year dataframes together
 trees.bind <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% bind_rows(.,y4) %>% filter(Site!="Tomanamus" & Site!="" & Site!="Puyallup") %>% droplevels()
 ```
 
@@ -226,7 +259,6 @@ trees.bind <- trees.bind %>%  group_by(Tree.Number, Site, Seed.Zone) %>% mutate(
 ```{r}
 trees.bind$Date.Measured <- as.Date(trees.bind$Date.Measured,"%m/%d/%y")
 trees.bind$Date.Planted <- as.Date(trees.bind$Date.Planted,"%m/%d/%y")
-
 trees.bind <- trees.bind %>% mutate(Planted.Growth.Days=Date.Measured-Date.Planted)
 ```
 
