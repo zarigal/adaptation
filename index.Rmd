@@ -9,9 +9,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ```{r include=FALSE}
 library(tidyverse)
-install.packages("kableExtra")
 library(kableExtra)
-install.packages("patchwork")
 library(patchwork)
 ```
 
@@ -190,17 +188,22 @@ rough2025 <- rough2025 %>%
 rough2025 <- rough2025 %>%
     mutate(Site = recode(Site, 'Discovery Park' = 'Seattle'))
 
+rough2025 <- rough2025 %>% select(-c("Seed Zone"))
+
 #merge two sheets together based on tree number
 
-sheet2025 <- sheet2025 %>%
+ntn2025 <- sheet2025 %>%
   mutate(`New Tree Number` = coalesce(`New Tree Number`,`Tree Number`))
          
-merged2025 <- rough2025 %>%
-full_join(rough2025, by = intersect(colnames(sheet2025), colnames(rough2025))) %>%
-  group_by(`New Tree Number`)
+#merged2025 <- rough2025 %>%
+#full_join(rough2025, by = intersect(colnames(sheet2025), colnames(rough2025))) %>%
+ # group_by(`New Tree Number`)
 #merged seed zone from 2025 to merged sheet
-merged2025 <- merged2025 %>% group_by(`New Tree Number`, Site, `Seed Zone`) %>%
-  left_join(merged2025, sheet2025[,c("New Tree Number", "Seed Zone")], by="New Tree Number") %>% ungroup()
+ntn2025 <- ntn2025 %>% group_by(ntn2025$`New Tree Number`, ntn2025$Site) %>%
+  merge(rough2025, ntn2025[, c("New Tree Number", "Seed Zone")], by= "New Tree Number", all.x = TRUE) %>% ungroup()
+
+rough2025$`Seed Zone` <- rough2025$`Seed Zone`[match(ntn2025$Site, ntn2025$`New Tree Number`)]
+
 y4 <- merged2025 %>% select(-c("Seed Zone.x"))
 y4 <- y4 %>%
   rename("Seed Zone" = "Seed Zone.y")
