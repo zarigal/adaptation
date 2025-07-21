@@ -1,0 +1,199 @@
+---
+title: "2025 Redcedar Adaptation Analysis"
+output: word_document
+date: "2025-03-24"
+theme: cerulean
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(readxl)
+```
+
+## Introduction
+
+Welcome to the analyses of western redcedar trees planted in for the Open Redcedar Adaptation Network 
+
+### Research Topic
+
+Dieback of western redcedar is increasinly reported throughout the northwest. Planting trees from southern seed sources may be a solution. The open redcedar adaptation network planted redcedar trees from two seed sources to compare the growth of trees from Oregon seed zones to trees from Washington seed zones.
+
+### Data
+
+Redcedar trees were planted in 2022 and remeasured each spring thereafter. The dataset analyzed here includes two years of remeasurements after planting. 
+
+### Research Question
+
+Is there a difference in growth rates between Oregon seed zones and Washington Seed zones. 
+
+## Data Wrangling
+
+```{r}
+data <- read_excel("data/WRC Tree Measurements 2024.xlsx", sheet = "2024 Corrected")
+```
+
+
+```{r}
+names(data)
+```
+
+
+```{r}
+str(data)
+```
+
+Below we set the site and seed zone variables as factors
+
+```{r}
+data$Site <- as.factor(data$Site)
+data$`Seed Zone` <- as.factor(data$`Seed Zone`)
+#data$`Elk Browse` <- as.factor(data$`Elk Browse`)
+```
+
+
+
+
+
+## Data Visualization
+
+
+Lets look at the distribution of the data
+
+
+```{r}
+ggplot(data, aes(`Tree Height (cm)`) ) +geom_histogram() +theme_bw()
+```
+
+It looks like there are a lot of trees in the 50cm range. Perhaps that is related to elk browse?
+
+Let try to plot it without any of the trees that had elk browse
+
+```{r}
+ggplot(data,aes(`Elk Browse`))+geom_bar() +coord_flip()+theme_bw()
+```
+
+```{r}
+data.browsed <- data %>% mutate(`Elk Browse` = recode(`Elk Browse`, YEes = 'Yes', Low = 'Yes', High =  'Yes' ))
+```
+
+
+
+
+```{r}
+str(data.browsed)
+```
+
+
+```{r}
+data.browsed$`Elk Browse`[is.na(data.browsed$`Elk Browse`)] <- "NA"
+```
+
+
+```{r}
+ggplot(data.browsed,aes(`Elk Browse`))+geom_bar() +coord_flip()+theme_bw()
+```
+
+
+```{r}
+data.browsed.filtered <- data.browsed %>% filter(`Elk Browse` != "Yes")
+```
+
+
+
+```{r}
+ggplot(data.browsed.filtered, aes(`Tree Height (cm)`) ) +geom_histogram() +theme_bw()
+```
+
+
+```{r}
+ggplot(data.browsed.filtered,aes(`Seed Zone`)) +geom_bar() +theme_bw() 
+```
+
+
+Oh, we have one tree in seed zone labeled 'Wa' instead of 'WA'
+
+```{r}
+data.browsed.filtered$`Seed Zone`[data.browsed.filtered$`Seed Zone`=="Wa"] <- "WA"
+```
+
+```{r}
+ggplot(data.browsed.filtered,aes(`Seed Zone`)) +geom_bar() +theme_bw()
+```
+
+
+```{r}
+ggplot(data.browsed.filtered,aes(`Seed Zone`,fill=Site)) +geom_bar() +theme_bw()
+```
+
+
+Lets filter out the Puyallup site
+
+```{r}
+data.browsed.site.filtered <- data.browsed.filtered %>% filter(Site!="Puyallup")
+```
+
+
+
+```{r}
+ggplot(data.browsed.site.filtered, aes(`Tree Height (cm)`) ) +geom_histogram() +theme_bw()
+```
+
+
+```{r}
+ggplot(data.browsed.filtered,aes(`Seed Zone`,`Tree Height (cm)`)) +geom_boxplot() +theme_bw()
+```
+
+
+```{r}
+#ggplot(df, aes(x=Category, y=Mean, fill=Quality)) +  geom_bar(position=position_dodge(), stat="identity",  colour='black') + geom_errorbar(aes(ymin=Mean-sd, ymax=Mean+sd), width=.2)
+```
+
+
+
+## Analyses 
+
+Lets compare the standard deviation between groups
+
+```{r}
+library(car)
+leveneTest(`Tree Height (cm)` ~ `Seed Zone`, data=data.browsed.site.filtered)
+```
+
+According to the Levene's Test for Homogenity of Variance, the standard deviation in tree height between Oregon and Washington seed zones is significantly different. reject the null -
+
+"tests the null hypothesis that the population variances are equal (called homogeneity of variance or homoscedasticity). If the resulting p-value of Levene's test is less than some significance level (typically 0.05), the obtained differences in sample variances are unlikely to have occurred based on random sampling from a population with equal variances. Thus, the null hypothesis of equal variances is rejected and it is concluded that there is a difference between the variances in the population." - Wikipedia article https://en.wikipedia.org/wiki/Levene%27s_test
+
+Basically, there is a difference in variation. Therefore, an anova can't be used to compare the tree heights in the data. 
+
+Determining the tests that are appropriate
+
+Depending on the distribution and shape of the data, we may or may not be able to compare groups with anova or t-tests. 
+
+
+
+```{r}
+ggplot(data.browsed.filtered,aes(`Tree Height (cm)`,`Tree Diameter (mm)`, fill=`Seed Zone`)) +geom_smooth()
+```
+
+
+
+
+```{r}
+model.one <- glm(`Tree Height (cm)` ~ `Seed Zone` + Site, data=data.browsed.site.filtered)
+
+summary(model.one)
+plot(model.one)
+```
+
+
+
+
+
+
+## Results 
+
