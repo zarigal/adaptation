@@ -196,10 +196,21 @@ rough2025 <- rough2025 %>% select(-c("Seed Zone"))
 #  mutate(`New Tree Number` = coalesce(`New Tree Number`,`Tree Number`))
 
 merged2025 <- left_join(rough2025, sheet2025, by=c("New Tree Number"="New Tree Number","Site" = "Site"))
-attributes(merged2025)
+#attributes(merged2025)
 
-y4 <- merged2025 %>% select(-c("Tree Height (cm).y","Tree Diameter (mm).y", "Comment.y","Health.y","Year Measured","Date Measured.y"))
+merged2025 <- merged2025 %>%
+  mutate(`Health` = coalesce(`Health.x`,`Health.y`)) %>%
+  mutate(`Comment` = coalesce(`Comment.x`,`Comment.y`))
+
+merged2025 <- merged2025 %>%
+  mutate(`Elk Browse` = case_when(
+    grepl("browsed", Comment, ignore.case = TRUE) ~ "Y",
+    TRUE ~ "N" # Keep the original value if no match is found
+  ))
+
+y4 <- merged2025 %>% select(-c("Tree Height (cm).y","Tree Diameter (mm).y", "Comment.y","Health.y","Year Measured","Date Measured.y","Comment.x","Health.x"))
 y4 <- cbind(y4, Measurement.Year= 2025)
+
 
 #add tree numbers for first year
 y1 <- y1 %>% mutate(Temp.Tree.Number = row_number())
@@ -214,11 +225,10 @@ y4 <- y4 %>%
   rename("New.Tree.Number" = "New Tree Number") %>%
   rename("Tree.Height..cm." = "Tree Height (cm).x") %>%
   rename("Tree.Diameter..mm." = "Tree Diameter (mm).x") %>%
-  rename("Health" = "Health.x") %>%
   rename("Seed.Zone" = "Seed Zone") %>%
   rename("Date.Measured" = "Date Measured.x") %>%
-  rename("Comment" = "Comment.x") %>%
-  rename("Tree.Number" = "Tree Number")
+  rename("Tree.Number" = "Tree Number") %>%
+  rename("Elk.Browse" = "Elk Browse")
 
 ```
 
@@ -230,8 +240,15 @@ y2$Date.Measured <- as.Date(y2$Date.Measured,format ="%m/%d/%y")
 y3$Date.Measured <- as.Date(y3$Date.Measured, format = "%m/%d/%y")
 y4$Date.Measured <- as.Date(y4$Date.Measured,format = "%m/%d/%y")
 
+y1 <- y1 %>%
+  mutate(Health = ifelse(is.na(Health), "Alive", Health))
+
 #bind all year dataframes together
 trees.bind <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% bind_rows(.,y4) %>% filter(Site!="Tomanamus" & Site!="" & Site!="Puyallup") %>% droplevels()
+
+trees.bind[130, "Health"] <- "Dead"
+trees.bind[167, "Health"] <- "Dying"
+
 ```
 
 ```{r}
@@ -239,6 +256,18 @@ trees.bind$Health[trees.bind$Health==""] <- "Missing"
 trees.bind$Health[trees.bind$Health=="missing"] <- "Missing"
 trees.bind$Seed.Zone[trees.bind$Seed.Zone=="Wa"] <- "WA"
 trees.bind <- trees.bind %>% droplevels()
+
+trees.bind <- trees.bind %>%
+  mutate(`Elk.Browse` = case_when(
+    grepl("browsed", Comment, ignore.case = TRUE) ~ "Y",
+    TRUE ~ "N" # Keep the original value if no match is found
+  ))
+
+trees.bind <- trees.bind %>%
+  mutate(`Health` = case_when(
+    grepl("Missing/presumed dead", Comment, ignore.case = TRUE) ~ "Missing",
+    TRUE ~ `Health` # Keep the original value if no match is found
+  ))
 ```
 
 ```{r}
@@ -261,6 +290,10 @@ trees.bind <- trees.bind %>% mutate(Planted.Growth.Days=Date.Measured-Date.Plant
 
 ```{r}
 trees <- trees.bind
+dead.trees <- trees %>%
+  filter(Health == "Dead")
+matching.trees <- trees %>%
+  inner_join(dead.trees, by = "Tree.Number", relationship = "many-to-many")
 ```
 
 ```{r}
@@ -408,12 +441,14 @@ The table below provides the same data, expect the means were calculated across 
 ```{r message=FALSE, warning=FALSE}
 trees.summary.sites <- trees.wide.pos.all %>% group_by(Site,Seed.Zone)  %>% summarize(
 n=n(),
-mean.height.2024=mean(Tree.Height..cm._2024),
-mean.diameter.2024=mean(Tree.Diameter..mm._2024),
+mean.height.2025=mean(Tree.Height..cm._2025),
+mean.diameter.2025=mean(Tree.Diameter..mm._2025),
 mean.y1.height.growth=mean(y1.height.growth,na.rm=TRUE),
 mean.y1.diameter.growth=mean(y1.diameter.growth,na.rm=TRUE),
 mean.y2.height.growth=mean(y2.height.growth,na.rm=TRUE),
 mean.y2.diameter.growth=mean(y2.diameter.growth,na.rm=TRUE),
+mean.y3.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
+mean.y3.height.growth=mean(y3.height.growth, na.rm = TRUE),
 mean.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 mean.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
 kable(trees.summary.sites,digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
@@ -497,7 +532,7 @@ trees.condition <- trees %>% group_by(Site,Seed.Zone,Final.Health) %>% summarize
 ```
 
 ```{r}
-trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dying','Dead','Missing'))
+trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dead','Dying','Missing'))
 ```
 
 ```{r}
