@@ -11,6 +11,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 library(kableExtra)
 library(patchwork)
+library(zoo)
 ```
 
 
@@ -190,27 +191,26 @@ rough2025 <- rough2025 %>%
 
 rough2025 <- rough2025 %>% select(-c("Seed Zone"))
 
-#merge two sheets together based on tree number
-
-#sheet2025 <- sheet2025 %>%
-#  mutate(`New Tree Number` = coalesce(`New Tree Number`,`Tree Number`))
-
+#merge two sheets together based on tree number and site
 merged2025 <- left_join(rough2025, sheet2025, by=c("New Tree Number"="New Tree Number","Site" = "Site"))
-#attributes(merged2025)
 
+#combine Health and Comment columns from both sheets
 merged2025 <- merged2025 %>%
   mutate(`Health` = coalesce(`Health.x`,`Health.y`)) %>%
   mutate(`Comment` = coalesce(`Comment.x`,`Comment.y`))
 
+#if comments contain "browsed", mark elk browsed column as Y, otherwise mark N
 merged2025 <- merged2025 %>%
   mutate(`Elk Browse` = case_when(
     grepl("browsed", Comment, ignore.case = TRUE) ~ "Y",
     TRUE ~ "N" # Keep the original value if no match is found
   ))
 
+#remove duplicate columns
 y4 <- merged2025 %>% select(-c("Tree Height (cm).y","Tree Diameter (mm).y", "Comment.y","Health.y","Year Measured","Date Measured.y","Comment.x","Health.x"))
-y4 <- cbind(y4, Measurement.Year= 2025)
 
+#add measurement year
+y4 <- cbind(y4, Measurement.Year= 2025)
 
 #add tree numbers for first year
 y1 <- y1 %>% mutate(Temp.Tree.Number = row_number())
@@ -240,6 +240,7 @@ y2$Date.Measured <- as.Date(y2$Date.Measured,format ="%m/%d/%y")
 y3$Date.Measured <- as.Date(y3$Date.Measured, format = "%m/%d/%y")
 y4$Date.Measured <- as.Date(y4$Date.Measured,format = "%m/%d/%y")
 
+#in Year 1, if health condition is NA, change it to alive
 y1 <- y1 %>%
   mutate(Health = ifelse(is.na(Health), "Alive", Health))
 
@@ -252,17 +253,20 @@ trees.bind[167, "Health"] <- "Dying"
 ```
 
 ```{r}
+#labeling consistency
 trees.bind$Health[trees.bind$Health==""] <- "Missing"
 trees.bind$Health[trees.bind$Health=="missing"] <- "Missing"
 trees.bind$Seed.Zone[trees.bind$Seed.Zone=="Wa"] <- "WA"
 trees.bind <- trees.bind %>% droplevels()
 
+#if comments contain "browsed", mark elk browsed column as Y, otherwise mark N
 trees.bind <- trees.bind %>%
   mutate(`Elk.Browse` = case_when(
     grepl("browsed", Comment, ignore.case = TRUE) ~ "Y",
     TRUE ~ "N" # Keep the original value if no match is found
   ))
 
+#if comments contain "missing/presumed dead" change health condition to missing
 trees.bind <- trees.bind %>%
   mutate(`Health` = case_when(
     grepl("Missing/presumed dead", Comment, ignore.case = TRUE) ~ "Missing",
@@ -271,14 +275,14 @@ trees.bind <- trees.bind %>%
 ```
 
 ```{r}
-
+#use New Tree Number if not NA, otherwise use Tree Number
 trees.bind <- trees.bind %>% group_by(Tree.Number, Site, Seed.Zone) %>% mutate(New.Tree.Number = if_else(is.na(New.Tree.Number),first(na.omit(New.Tree.Number)),New.Tree.Number)) %>%ungroup()
 
+#use Temp Tree Number if not NA, otherwise use Tree Number
 trees.bind <- trees.bind %>% group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Temp.Tree.Number = if_else(is.na(Temp.Tree.Number),first(na.omit(Temp.Tree.Number)),Temp.Tree.Number)) %>%ungroup()
 
 trees.bind <- trees.bind %>%  group_by(Tree.Number, Site, Seed.Zone) %>% mutate(Date.Planted = if_else(is.na(Date.Planted),first(na.omit(Date.Planted)),Date.Planted)) %>%ungroup()
 ```
-
 
 ```{r}
 trees.bind$Date.Measured <- as.Date(trees.bind$Date.Measured,"%m/%d/%y")
@@ -295,12 +299,14 @@ trees <- trees.bind
 #matching.trees <- trees %>%
 #  inner_join(dead.trees, by = "Tree.Number", relationship = "many-to-many")
 
+#if previous year's health condition is dead change following years health condition to dead
 trees <- trees %>%
   group_by(Tree.Number, Site, Seed.Zone) %>%
   arrange(Measurement.Year) %>%
   mutate(Previous_Value = lag(Health), Health = case_when(!is.na(Previous_Value) & Previous_Value == "Dead" ~ "Dead", TRUE ~ Health)) %>%
   select(-Previous_Value)
 
+#if previous year's health condition is dying and current year's health condition is missing, change current year's health condition to dead
 trees <- trees %>%
   group_by(Tree.Number, Site, Seed.Zone) %>%
   mutate(Health = case_when(lag(Health, n= 1, order_by = Measurement.Year) == "Dying" & Health == "Missing" ~ "Dead", TRUE ~ Health))
@@ -308,8 +314,17 @@ trees <- trees %>%
 trees <- trees %>%
   group_by(Tree.Number, Site, Seed.Zone) %>%
   arrange(Measurement.Year) %>%
-  mutate(Final.Health = last(Health))
+  mutate(Previous.Health = lag(Health), Health = case_when(is.na(Health) ~ Previous.Health, TRUE ~ Health)) %>%
+  select(-Previous.Health)
 
+#create final health column and if most current year's health condition is missing. use previous year's
+trees <- trees %>%
+  group_by(Tree.Number, Site, Seed.Zone) %>%
+  tidyr::complete(Measurement.Year = seq(min(Measurement.Year), max(Measurement.Year)), fill = list(Health = NA)) %>%
+  mutate(Final.Health = last(Health)) %>%
+  mutate(Final.Health = na.locf(Final.Health, na.rm =  FALSE, fromLast = TRUE)) %>%
+  mutate(Final.Health = ifelse(is.na(Health) & is.na(Final.Health), NA, Final.Health)) %>%
+  ungroup()
 ```
 
 ```{r}
