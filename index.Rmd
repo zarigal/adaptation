@@ -330,7 +330,8 @@ trees.bind <- trees.bind %>% mutate(Planted.Growth.Days=Date.Measured-Date.Plant
 ```{r}
 #VERSION WITH NO BROWSED TREES
 trees.no.browse <- trees.bind %>%
-  filter(Elk.Browse !="Y") %>% droplevels()
+  group_by(Tree.Number, Site, Seed.Zone) %>%
+  filter(Elk.Browse !="Y") %>% ungroup()
 
 trees.no.browse <- trees.no.browse %>%
   group_by(Tree.Number, Site, Seed.Zone) %>%
@@ -544,6 +545,7 @@ P1 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y1.height.growth,fill=Seed.Zone)) 
 P2 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y2.height.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P3 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y3.height.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P4 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
+?ggplot
 
 height_plots <- P1 + P2 + P3 + P4
 height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
