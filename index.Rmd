@@ -329,8 +329,11 @@ trees.bind <- trees.bind %>% mutate(Planted.Growth.Days=Date.Measured-Date.Plant
 
 ```{r}
 #VERSION WITH NO BROWSED TREES
-trees.no.browse <- trees.bind %>%
-  filter(Elk.Browse !="Y") %>% droplevels()
+trees.browsed <- trees.bind %>%
+  group_by(Tree.Number, Site, Seed.Zone) %>%
+  filter(Elk.Browse =="Y")
+
+trees.no.browse <- anti_join(trees.bind, trees.browsed, by = c("Tree.Number", "Seed.Zone", "Site"))
 
 trees.no.browse <- trees.no.browse %>%
   group_by(Tree.Number, Site, Seed.Zone) %>%
