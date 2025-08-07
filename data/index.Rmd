@@ -1,0 +1,62 @@
+---
+title: "Redcedar Adaptation Data Wrangle Markdown"
+output: html_document
+date: "2025-08-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Wrangling
+
+
+## Purpose 
+
+The purpose of this markdown document is to import, wrangle, and export the adaptation data for use in analyses and visualization. 
+
+* The Data
+  + 2022 Measurements (Pre-planting or just after planting)
+  + 2023 Measurements (1 year after planting)
+  + 2024 Measurements (2 years after planting)
+  + 2025 Measurements (3 years after planting)
+  
+  
+## Data Download
+
+This webpage and data are hosted in a github repository. The content on this page is compiled using R Markdown, but the data is maintained as a .csv file.
+
+Download the data by visiting: https://github.com/jmhulbert/adaptation
+
+Anyone is welcome to collaborate to add or make changes to the github repository (https://github.com/jmhulbert/adaptation).
+
+    As a repository collaborator:
+        You are welcome to clone the repository to your system and work from the R Project file (adaptation.Rproj) in Rstudio or you can make changes to the .csv files (./data/).
+        You can also make changes directly to the .csv file through your browser.
+        Or you can make changes by downloading the .csv file, altering, committing and pushing it back to the repository.
+        You can also drop new .csv files into the ./data/ folder in the repository.
+
+Note that you need a github account to collaborate or make changes. Feel free to contact JM Hulbert for additional details and instructions, or to request a change or addition.
+
+Note the Markdown (index.Rmd) file will need to be knit before the changes will be visible on this webpage.
+
+
+## Data Merging
+
+
+
+
+
+## Data Quality Control
+
+
+
+
+## Exported Data 
+
+
+
+
+
+
+

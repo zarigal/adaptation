@@ -3,3 +3,29 @@ title: "index"
 output: html_document
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# Analyses
+
+The purpose of this page is to document the analyses of the redcedar adaptation network data.
+
+
+```{r}
+#data <- read.csv("github raw....")
+#if offline - data <-read.csv("")
+```
+
+
+
+
+## Data not including browsed
+
+
+## Data including browsed
+
+
+
