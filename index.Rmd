@@ -620,7 +620,7 @@ ggplot(trees.condition.zone,aes(x = reorder(`Seed Zone`, -n),n,fill=Final.Health
 ---
 
 ```{r message=FALSE}
-#trees.condition <- trees %>% group_by(Site,`Seed Zone`,Final.Health) %>% summarize(n=n_distinct(`Temp Tree Number`)) %>% filter(Final.Health!="NA")
+trees.condition <- trees %>% group_by(Site,`Seed Zone`,Final.Health) %>% summarize(n=n_distinct(`Temp Tree Number`)) %>% filter(Final.Health!="NA")
 #kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
 #trees.condition <- trees.no.browse %>% group_by(Site,Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
 #kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
@@ -641,11 +641,11 @@ car::leveneTest(`Tree Diameter (mm)`~as.factor(`Seed Zone`), data=trees)
 #p = .6003, Not enough evidence to suggest there is not equality of variances, assume variances are equal
 
 #2a check normality
-math.lm=lm(MathScore~as.factor(FivePlusHousehold)+as.factor(PublicPrivateSchool), data = ECLSK2011_Clean)
-install.packages("ggpubr")
-library(ggpubr)
-ggqqplot(residuals(math.lm))
-hist(residuals(math.lm))
+#math.lm=lm(MathScore~as.factor(FivePlusHousehold)+as.factor(PublicPrivateSchool), data = ECLSK2011_Clean)
+#install.packages("ggpubr")
+#library(ggpubr)
+#ggqqplot(residuals(math.lm))
+#hist(residuals(math.lm))
 #Normailty assumed, qq plot of the residuals generally follows line of best fit and
 #histogram shows mainly normal distribution
 ```
