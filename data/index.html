@@ -372,8 +372,173 @@ export the adaptation data for use in analyses and visualization.</p>
 </ul></li>
 </ul>
 </div>
-<div id="data-filtering" class="section level2">
-<h2>Data Filtering</h2>
+<div id="data-download" class="section level2">
+<h2>Data Download</h2>
+<p>This webpage and data are hosted in a github repository. The content
+on this page is compiled using R Markdown, but the data is maintained as
+a .csv file.</p>
+<p>Download the data by visiting: <a href="https://github.com/jmhulbert/adaptation" class="uri">https://github.com/jmhulbert/adaptation</a></p>
+<p>Anyone is welcome to collaborate to add or make changes to the github
+repository (<a href="https://github.com/jmhulbert/adaptation" class="uri">https://github.com/jmhulbert/adaptation</a>).</p>
+<pre><code>As a repository collaborator:
+    You are welcome to clone the repository to your system and work from the R Project file (adaptation.Rproj) in Rstudio or you can make changes to the .csv files (./data/).
+    You can also make changes directly to the .csv file through your browser.
+    Or you can make changes by downloading the .csv file, altering, committing and pushing it back to the repository.
+    You can also drop new .csv files into the ./data/ folder in the repository.</code></pre>
+<p>Note that you need a github account to collaborate or make changes.
+Feel free to contact JM Hulbert for additional details and instructions,
+or to request a change or addition.</p>
+<p>Note the Markdown (index.Rmd) file will need to be knit before the
+changes will be visible on this webpage.</p>
+</div>
+<div id="load-packages" class="section level2">
+<h2>Load packages</h2>
+<pre class="r"><code>library(tidyverse)
+library(kableExtra)
+library(patchwork)
+library(zoo)
+library(readxl)</code></pre>
+</div>
+<div id="import-data-files" class="section level2">
+<h2>Import data files</h2>
+<pre class="r"><code>y1 &lt;- read_csv(&quot;2022 Measurements.csv&quot;)
+y2 &lt;- read_excel(&quot;2023 MeasurementsCorrected.xlsx&quot;)
+y3 &lt;- read_excel(&quot;2024 Measurementsv3.xlsx&quot;)
+y4 &lt;- read_excel(&quot;2025 Measurements.xlsx&quot;, sheet = &quot;2025&quot;)</code></pre>
+</div>
+<div id="data-merging" class="section level2">
+<h2>Data Merging</h2>
+<p>Add measurement year column for each year’s dataset.</p>
+<pre class="r"><code>y1$Measurement.Year &lt;- 2022
+y2$Measurement.Year &lt;- 2023
+y3$Measurement.Year &lt;- 2024
+y4 &lt;- cbind(y4, Measurement.Year= 2025)</code></pre>
+<p>Remove extra inconsistent columns between each year’s dataset. Add
+“Temp Tree Numbers” for year 1 dataset and if “Health” column NA change
+to “Alive”.</p>
+<pre class="r"><code>y4 &lt;- y4 %&gt;% select(-c(&quot;Year Measured&quot;))
+
+#remove unnecessary columns
+y1 &lt;- y1 %&gt;% select(-c(&quot;Year Measured&quot;,&quot;Color&quot;))
+y2 &lt;- y2 %&gt;% select(-c(&quot;Year Measured&quot;,&quot;Color&quot;))
+y3 &lt;- y3 %&gt;% select(-c(&quot;Year Measured&quot;))
+
+#add tree numbers for first year
+y1 &lt;- y1 %&gt;% mutate(`Temp Tree Number` = row_number())
+
+#in Year 1, if health condition is NA, change it to alive
+y1 &lt;- y1 %&gt;%
+  mutate(Health = ifelse(is.na(Health), &quot;Alive&quot;, Health))</code></pre>
+<p>Make data format consistent between all years.</p>
+<pre class="r"><code>#change date format to match year 4
+y1$`Date Measured` &lt;- as.Date(y1$`Date Measured`,format = &quot;%m/%d/%y&quot;)
+y1$`Date Planted` &lt;- as.Date(y1$`Date Planted`,format = &quot;%m/%d/%y&quot;)
+y2$`Date Measured` &lt;- as.Date(y2$`Date Measured`,format =&quot;%m/%d/%y&quot;)
+y3$`Date Measured` &lt;- as.Date(y3$`Date Measured`,format =&quot;%m/%d/%y&quot;)
+y4$`Date Measured` &lt;- as.Date(y4$`Date Measured`,format = &quot;%m/%d/%y&quot;)</code></pre>
+<p>Merge all year’s dataframes together.</p>
+<pre class="r"><code>#bind all year dataframes together
+trees.bind &lt;- bind_rows(y1,y2) %&gt;% bind_rows(.,y3) %&gt;% bind_rows(.,y4) %&gt;% filter(Site!=&quot;&quot; &amp; Site!=&quot;Puyallup&quot;) %&gt;% droplevels()</code></pre>
+<p>Fix labeling inconsistencies within cells.</p>
+<pre class="r"><code>#labeling consistency
+trees.bind$Health[trees.bind$Health==&quot;&quot;] &lt;- &quot;Missing&quot;
+trees.bind$Health[trees.bind$Health==&quot;missing&quot;] &lt;- &quot;Missing&quot;
+trees.bind$Health[trees.bind$Health == &quot;dead&quot;] &lt;- &quot;Dead&quot;
+trees.bind$`Seed Zone`[trees.bind$`Seed Zone`==&quot;Wa&quot;] &lt;- &quot;WA&quot;
+trees.bind &lt;- trees.bind %&gt;% droplevels()</code></pre>
+<p>Fill in “Elk Browsed” data based off “Comments” column. If comments
+column contain “browsed”, mark ‘Elk Browsed’ column as ‘Y’ (yes),
+otherwise mark ‘N’ (no).</p>
+<pre class="r"><code>#if comments contain &quot;browsed&quot;, mark elk browsed column as Y, otherwise mark N
+trees.bind &lt;- trees.bind %&gt;%
+  mutate(`Elk Browse` = case_when(
+    grepl(&quot;browsed&quot;, Comment, ignore.case = TRUE) ~ &quot;Y&quot;,
+    TRUE ~ &quot;N&quot; # Keep the original value if no match is found
+  ))</code></pre>
+<pre class="r"><code>#use New Tree Number if not NA, otherwise use Tree Number
+trees.bind &lt;- trees.bind %&gt;% group_by(`Tree Number`, Site, `Seed Zone`) %&gt;% 
+  mutate(`New Tree Number` = if_else(is.na(`New Tree Number`),first(na.omit(`New Tree Number`)),`New Tree Number`)) %&gt;%
+  ungroup()
+
+#use Temp Tree Number if not NA, otherwise use Tree Number
+trees.bind &lt;- trees.bind %&gt;% group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  mutate(`Temp Tree Number` = if_else(is.na(`Temp Tree Number`),first(na.omit(`Temp Tree Number`)),`Temp Tree Number`))%&gt;%
+  ungroup()
+
+trees.bind &lt;- trees.bind %&gt;%  group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  mutate(`Date Planted` = if_else(is.na(`Date Planted`),first(na.omit(`Date Planted`)),`Date Planted`)) %&gt;%
+  ungroup()
+#if comments contain &quot;missing/presumed dead&quot; change health condition to missing
+trees.bind &lt;- trees.bind %&gt;%
+  mutate(`Health` = case_when(
+    grepl(&quot;Missing/presumed dead&quot;, Comment, ignore.case = TRUE) ~ &quot;Missing&quot;,
+    TRUE ~ `Health` # Keep the original value if no match is found
+  ))
+
+#use New Tree Number if not NA, otherwise use Tree Number
+trees.bind &lt;- trees.bind %&gt;% group_by(`Tree Number`, Site, `Seed Zone`) %&gt;% 
+  mutate(`New Tree Number` = if_else(is.na(`New Tree Number`),first(na.omit(`New Tree Number`)),`New Tree Number`)) %&gt;%
+  ungroup()
+
+#use Temp Tree Number if not NA, otherwise use Tree Number
+trees.bind &lt;- trees.bind %&gt;% group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  mutate(`Temp Tree Number` = if_else(is.na(`Temp Tree Number`),first(na.omit(`Temp Tree Number`)),`Temp Tree Number`))%&gt;%
+  ungroup()
+
+trees.bind &lt;- trees.bind %&gt;%  group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  mutate(`Date Planted` = if_else(is.na(`Date Planted`),first(na.omit(`Date Planted`)),`Date Planted`)) %&gt;%
+  ungroup()
+
+trees.bind$`Date Measured` &lt;- as.Date(trees.bind$`Date Measured`,&quot;%m/%d/%y&quot;)
+trees.bind$`Date Planted` &lt;- as.Date(trees.bind$`Date Planted`,&quot;%m/%d/%y&quot;)
+trees.bind &lt;- trees.bind %&gt;% 
+  mutate(`Planted Growth Days`=`Date Measured`-`Date Planted`)
+
+trees &lt;- trees.bind</code></pre>
+</div>
+<div id="data-quality-control" class="section level2">
+<h2>Data Quality Control</h2>
+<pre class="r"><code>dead.trees &lt;- trees %&gt;%
+  filter(Health == &quot;Dead&quot;)
+
+matching.trees &lt;- trees %&gt;%
+  inner_join(dead.trees, by = &quot;Tree Number&quot;, relationship = &quot;many-to-many&quot;)
+
+#if previous year&#39;s health condition is dead change following years health condition to dead
+trees &lt;- trees %&gt;%
+  group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  arrange(Measurement.Year) %&gt;%
+  mutate(Previous_Value = lag(Health), Health = case_when(!is.na(Previous_Value) &amp;
+  Previous_Value == &quot;Dead&quot; ~ &quot;Dead&quot;, TRUE ~ Health)) %&gt;%
+  select(-Previous_Value)
+
+#if previous year&#39;s health condition is dying and current year&#39;s health condition is missing, change current year&#39;s health condition to dead
+trees &lt;- trees %&gt;%
+  group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  mutate(Health = case_when(lag(Health, n= 1, order_by = Measurement.Year) == &quot;Dying&quot; &amp;
+  Health == &quot;Missing&quot; ~ &quot;Dead&quot;, TRUE ~ Health))
+
+trees &lt;- trees %&gt;%
+  group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  arrange(Measurement.Year) %&gt;%
+  mutate(Previous.Health = lag(Health), Health = case_when(is.na(Health) ~ Previous.Health, TRUE ~ Health)) %&gt;%
+  select(-Previous.Health)
+
+#create final health column and if most current year&#39;s health condition is missing. use previous year&#39;s
+trees &lt;- trees %&gt;%
+  group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
+  tidyr::complete(Measurement.Year = seq(min(Measurement.Year), max(Measurement.Year)), fill = list(Health = NA)) %&gt;%
+  mutate(Final.Health = last(Health)) %&gt;%
+  mutate(Final.Health = zoo::na.locf(Final.Health, na.rm =  FALSE, fromLast = TRUE)) %&gt;%
+  mutate(Final.Health = ifelse(is.na(Health) &amp; is.na(Final.Health), NA, Final.Health)) %&gt;%
+  ungroup()
+
+trees$Site &lt;- as.factor(trees$Site)
+trees$Seed.Zone &lt;-as.factor(trees$`Seed Zone`)
+trees$Health &lt;- as.factor(trees$Health)</code></pre>
+</div>
+<div id="exported-data" class="section level2">
+<h2>Exported Data</h2>
 </div>
 </div>
 
