@@ -168,17 +168,14 @@ trees <- trees %>%
   mutate(Final.Health = zoo::na.locf(Final.Health, na.rm =  FALSE, fromLast = TRUE)) %>%
   mutate(Final.Health = ifelse(is.na(Health) & is.na(Final.Health), NA, Final.Health)) %>%
   ungroup()
-
-trees$Site <- as.factor(trees$Site)
-trees$Seed.Zone <-as.factor(trees$`Seed Zone`)
-trees$Health <- as.factor(trees$Health)
 ```
 
 ## Exported Data 
 ```{r}
-write.csv(trees,file="./adaptation-data-merged.csv")
+write.csv(trees, file = "./adaptation-data-merged.csv")
 ```
-[adaptation-data-merged.csv](www.bit.ly/1EqAdIp)
+[adaptation-data-merged.csv](https://raw.githubusercontent.com/zarigal/adaptation/refs/heads/main/data/adaptation-data-merged.csv)
+
 Please use this data in analyses. Please make any changes or corrections to the data in this R markdown so everyone is using the same dataset in the analyses.
 
 
