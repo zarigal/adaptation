@@ -251,3 +251,36 @@ The below plots show the distributions in increases in tree height for each seed
 ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73","#9e0000")) + labs(y= "Total Height Growth (cm)",x= "Seed Source",title="Cumulative Height Growth by Site") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
+#### Mortality
+
+```{r message=FALSE}
+trees.condition.zone <- trees %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+#kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
+#trees.condition.zone <- trees.no.browse %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+#kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
+```
+
+```{r}
+ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Final.Health))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+ scale_y_continuous(breaks = c(0,25,50,75,100,125,150),expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",title ="Health Condition by Seed Zone", fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
+```
+---
+
+\
+---
+
+```{r message=FALSE}
+trees.condition <- trees %>% group_by(Site, Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+#kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
+#trees.condition <- trees.no.browse %>% group_by(Site,Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+#kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
+```
+
+
+```{r}
+trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dead','Dying','Missing'))
+```
+
+
+```{r}
+ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip() + scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees", title = "Health Condition by Seed Zone and Site",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
+```
