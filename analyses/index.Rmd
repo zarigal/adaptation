@@ -28,20 +28,21 @@ library(kableExtra)
 library(patchwork)
 library(zoo)
 library(readxl)
+library(knitr)
 ```
 
 ### Import data
 ```{r}
 trees <- read.csv("https://raw.githubusercontent.com/zarigal/adaptation/refs/heads/main/data/adaptation-data-merged.csv")
 #if offline - data <-read.csv("data/adaptation-data-merged.csv")
-
-trees.no.browse <- read.csv("https://raw.githubusercontent.com/zarigal/adaptation/refs/heads/main/data/adaptation-data-merged.csv")
-#if offline - data <-read.csv("data/adaptation-data-merged.csv")
 ```
 
 ---
 
 ## Data not including browsed
+
+The following plots, tables, and analysis completely excludes all years' measurements from trees that had any instance of wildlife browsing observed during re-measurements.
+
 ```{r}
 trees.no.browse <- trees %>%
   group_by(Tree.Number, Site, Seed.Zone) %>%
@@ -66,9 +67,9 @@ treesno.wide.pos.all <- treesno.wide.growth %>% filter(y1.height.growth>0 & y1.d
 
 #### Number of Trees
 
-The below table lists the number of trees that were remeasured in 2024 at each site, excluding outliers. 
+The below table lists the number of trees that were remeasured in 2025 at each site, excluding outliers. 
 
-> Note, this table only includes trees that had positive height and diameter growth. For example, some trees were heavily browsed in 2024 and therefore may be shorter than trees in 2023.
+* Note, this table only includes trees that had positive height and diameter growth. For example, some trees were heavily browsed in 2024 and therefore may be shorter than trees in 2023.
 
 ```{r message=FALSE, warning=FALSE}
 Site.Summary <- treesno.wide.pos.all %>% group_by(Site,Seed.Zone) %>% summarize(n=n())
@@ -81,8 +82,7 @@ kable(Site.Summary[c(1,2,3)], col.names = c("Site", "Seed Zone", "Number of Tree
 The below table lists mean height and diameter increases between seed zones.
 
 ```{r message=FALSE}
-treesno.summary <- treesno.wide.pos.all %>% group_by(Seed.Zone)  %>% summarize(
-n=n(),
+treesno.summary <- treesno.wide.pos.all %>% group_by(Seed.Zone)  %>% summarize(n=n(),
 meanno.height.2025=mean(Tree.Height..cm._2025),
 meanno.diameter.2025=mean(Tree.Diameter..mm._2025),
 meanno.y1.height.growth=mean(y1.height.growth,na.rm=TRUE),
@@ -93,8 +93,8 @@ meanno.y3.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
 meanno.y3.height.growth=mean(y3.height.growth,na.rm=TRUE),
 meanno.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 meanno.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
-library(knitr)
-kable(treesno.summary,col.names = c("Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2,format = "html", table.attr='class="scrollable-table"') %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
+
+kable(treesno.summary,col.names = c("Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2,format = "html",table.attr='class="scrollable-table"') %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "200px")
 ```
 
 Trees from Oregon had a mean total height increase of `r round(treesno.summary$meanno.total.height.growth[treesno.summary$Seed.Zone=="OR"],2)`cm and trees from Washington had a mean total height increase of `r round(treesno.summary$meanno.total.height.growth[treesno.summary$Seed.Zone=="WA"],2)`cm.
@@ -118,6 +118,7 @@ meanno.y3.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
 meanno.y3.height.growth=mean(y3.height.growth, na.rm = TRUE),
 meanno.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 meanno.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
+
 library(knitr)
 kable(treesno.summary.sites, col.names = c("Site", "Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
 ```
@@ -138,7 +139,7 @@ height_plots <- P1 + P2 + P3 + P4
 height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
-The below plots show the distributions in increases in tree height for each seed zone and site
+The below plot shows the distributions in cumulative increase in tree height for each seed zone and site.
 
 ```{r message=FALSE}
 ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73","#9e0000")) + labs(y= "Total Height Growth (cm)",x= "Seed Source",title="Cumulative Height Growth by Site") + theme(plot.title = element_text(hjust = 0.5))
@@ -148,7 +149,7 @@ ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Site)) +geom_
 
 #### Tree Diameter Increase
 
-The below plots show the distributions in increases in tree diameter for each seed zone.
+The below plots show the distribution of growth in tree diameter for each seed zone.
 
 ```{r message=FALSE}
 P1 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y1.diameter.growth,fill=Seed.Zone)) +geom_violin() +geom_boxplot() +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#E69F00", "#56B4E9")) +labs(y= "Diameter Growth (mm)", x= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
@@ -160,7 +161,7 @@ height_plots <- P1 + P2 + P3 + P4
 height_plots + plot_annotation(title = "Growth in Diameter (mm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
-The below plots show the distributions in increases in tree diameter for each seed zone and site
+The below plots show the distributions in increases in tree diameter for each seed zone and site.
 
 ```{r message=FALSE}
 ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73","#9e0000")) + labs(y= "Total Diameter Growth (mm)",x= "Seed Source",title="Cumulative Diameter Growth by Site") + theme(plot.title = element_text(hjust = 0.5))
@@ -170,18 +171,19 @@ ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Site)) +geo
 
 #### Mortality
 
-```{r message=FALSE}
-treesno.condition.zone <- trees.no.browse %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
-#kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
-#trees.condition.zone <- trees.no.browse %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
-#kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
-```
+The below plot shows the number of trees that fall under each Health condition: alive, dead, or missing.
+
+* Note: Missing trees are classified as trees that were not found during remeasurements any time from 2023-2025.
 
 ```{r message=FALSE}
+treesno.condition.zone <- trees.no.browse %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+
 ggplot(treesno.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Final.Health))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+ scale_y_continuous(breaks = c(0,25,50,75,100,125,150),expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",title ="Health Condition by Seed Zone", fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ---
+
+The below plot shows the number of trees that fall under each health condition sorted by seed zone and planting site.
 
 ```{r message=FALSE}
 trees.condition <- trees %>% group_by(Site, Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
@@ -194,6 +196,9 @@ ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wra
 ---
 
 ## Data including browsed
+
+The following plots, tables, and analysis includes all years' measurements trees browsed by wildlife.
+
 ```{r}
 trees$Site <- as.factor(trees$Site)
 trees$Seed.Zone <-as.factor(trees$Seed.Zone)
@@ -219,7 +224,7 @@ trees.wide.pos.all <- trees.wide.growth %>% filter(y1.height.growth>0 & y1.diame
 
 The below table lists the number of trees that were remeasured in 2024 at each site, excluding outliers. 
 
-> Note, this table only includes trees that had positive height and diameter growth. For example, some trees were heavily browsed in 2024 and therefore may be shorter than trees in 2023.
+* Note, this table only includes trees that had positive height and diameter growth. For example, some trees were heavily browsed in 2024 and therefore may be shorter than trees in 2023.
 
 ```{r message=FALSE}
 Site.Summary <- trees.wide.pos.all %>% group_by(Site,Seed.Zone) %>% summarize(n=n())
@@ -271,9 +276,9 @@ mean.y3.height.growth=mean(y3.height.growth, na.rm = TRUE),
 mean.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 mean.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
 library(knitr)
-kable(trees.summary.sites, col.names = c("Site", "Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
+kable(trees.summary.sites, col.names = c("Site", "Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "400px")
 ```
-\
+
 
 #### Tree Height Increase
 
@@ -289,11 +294,9 @@ height_plots <- P1 + P2 + P3 + P4
 height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
-\
-
 ---
 
-The below plots show the distributions in increases in tree height for each seed zone and site
+The below plots show the distributions in increases in tree height for each seed zone and site.
 
 ```{r message=FALSE}
 ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Site)) +geom_boxplot() +theme_bw() +scale_fill_manual(values=c("#E69F00", "#56B4E9", "#009E73","#9e0000")) + labs(y= "Total Height Growth (cm)",x= "Seed Source",title="Cumulative Height Growth by Site") + theme(plot.title = element_text(hjust = 0.5))
@@ -301,34 +304,24 @@ ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Site)) +geom_bo
 
 #### Mortality
 
+The below plots show the number of trees that fall under each Health condition: alive, dead, or missing.
+
+* Note: Missing trees are classified as trees that were not found during re-measurements as of the most recent observation in 2025.
+
 ```{r message=FALSE}
 trees.condition.zone <- trees %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
-#kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
-#trees.condition.zone <- trees.no.browse %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
-#kable(trees.condition.zone) %>% kable_material(c("striped", "hover","condensed"))
-```
 
-```{r message=FALSE}
 ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Final.Health))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+ scale_y_continuous(breaks = c(0,25,50,75,100,125,150),expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",title ="Health Condition by Seed Zone", fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
 ```
+
 ---
 
-\
----
+The below plot shows the number of trees that fall under each health condition sorted by seed zone and planting site.
 
 ```{r message=FALSE}
 trees.condition <- trees %>% group_by(Site, Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
-#kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
-#trees.condition <- trees.no.browse %>% group_by(Site,Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
-#kable(trees.condition) %>% kable_material(c("striped", "hover","condensed"))
-```
 
-
-```{r}
 trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dead','Dying','Missing'))
-```
 
-
-```{r}
 ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip() + scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees", title = "Health Condition by Seed Zone and Site",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
 ```
