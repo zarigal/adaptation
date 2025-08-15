@@ -7,6 +7,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+##Purpose
+
 The purpose of this page is to document the analyses of the redcedar adaptation network data.
 
 Merged data set was downloaded from [adaptation-data-merged.csv](https://raw.githubusercontent.com/zarigal/adaptation/refs/heads/main/data/adaptation-data-merged.csv).
@@ -324,4 +326,21 @@ trees.condition <- trees %>% group_by(Site, Seed.Zone,Final.Health) %>% summariz
 trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dead','Dying','Missing'))
 
 ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip() + scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees", title = "Health Condition by Seed Zone and Site",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+#Check normality and equality of variances within data 
+library(car)
+car::leveneTest(`Tree Height (cm)`~as.factor(`Seed Zone`), data=trees)
+car::leveneTest(`Tree Diameter (mm)`~as.factor(`Seed Zone`), data=trees)
+#p = .6003, Not enough evidence to suggest there is not equality of variances, assume variances are equal
+
+#2a check normality
+#math.lm=lm(MathScore~as.factor(FivePlusHousehold)+as.factor(PublicPrivateSchool), data = ECLSK2011_Clean)
+#install.packages("ggpubr")
+#library(ggpubr)
+#ggqqplot(residuals(math.lm))
+#hist(residuals(math.lm))
+#Normailty assumed, qq plot of the residuals generally follows line of best fit and
+#histogram shows mainly normal distribution
 ```
