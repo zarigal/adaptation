@@ -12,7 +12,7 @@
 
 <meta name="date" content="2025-08-07" />
 
-<title>Redcedar Adaptation Data Wrangle Markdown</title>
+<title>Redcedar Adaptation Data Wrangling</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,15 +349,12 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Redcedar Adaptation Data Wrangle
-Markdown</h1>
+<h1 class="title toc-ignore">Redcedar Adaptation Data Wrangling</h1>
 <h4 class="date">2025-08-07</h4>
 
 </div>
 
 
-<div id="data-wrangling" class="section level1">
-<h1>Data Wrangling</h1>
 <div id="purpose" class="section level2">
 <h2>Purpose</h2>
 <p>The purpose of this markdown document is to import, wrangle, and
@@ -371,6 +368,19 @@ export the adaptation data for use in analyses and visualization.</p>
 <li>2025 Measurements (3 years after planting)</li>
 </ul></li>
 </ul>
+<hr />
+<div id="preliminary-data" class="section level3 tabset tabset-fade">
+<h3 class="tabset tabset-fade">Preliminary Data</h3>
+<p>Below you can explore some of the data available already.</p>
+<blockquote>
+<p>Note the trees were not stored in a manner to compare tree heights or
+diameters in the first measurement. For example, before planting, we
+kept the trees separate to avoid accidentally mixing an Oregon tree with
+a Washington tree.</p>
+</blockquote>
+<p>We plan to monitor the change in heights and diameters each year to
+compare between seed zones, sites, and annual climate variables.</p>
+</div>
 </div>
 <div id="data-download" class="section level2">
 <h2>Data Download</h2>
@@ -390,21 +400,21 @@ Feel free to contact JM Hulbert for additional details and instructions,
 or to request a change or addition.</p>
 <p>Note the Markdown (index.Rmd) file will need to be knit before the
 changes will be visible on this webpage.</p>
-</div>
-<div id="load-packages" class="section level2">
-<h2>Load packages</h2>
+<div id="load-packages" class="section level3">
+<h3>Load packages</h3>
 <pre class="r"><code>library(tidyverse)
 library(kableExtra)
 library(patchwork)
 library(zoo)
 library(readxl)</code></pre>
 </div>
-<div id="import-data-files" class="section level2">
-<h2>Import data files</h2>
+<div id="import-data-files" class="section level3">
+<h3>Import data files</h3>
 <pre class="r"><code>y1 &lt;- read_csv(&quot;2022 Measurements.csv&quot;)
 y2 &lt;- read_excel(&quot;2023 MeasurementsCorrected.xlsx&quot;)
 y3 &lt;- read_excel(&quot;2024 Measurementsv3.xlsx&quot;)
 y4 &lt;- read_excel(&quot;2025 Measurements.xlsx&quot;, sheet = &quot;2025&quot;)</code></pre>
+</div>
 </div>
 <div id="data-merging" class="section level2">
 <h2>Data Merging</h2>
@@ -436,10 +446,10 @@ y4$`Date Measured` &lt;- as.Date(y4$`Date Measured`,format = &quot;%m/%d/%y&quot
 </div>
 <div id="data-quality-control" class="section level2">
 <h2>Data Quality Control</h2>
-<p>Add information into dataset based off “Comments column. If”Comments”
-column contain “browsed”, mark ‘Elk Browsed’ column as ‘Y’ (yes),
-otherwise mark ‘N’ (no). If comments contain “missing/presumed dead”
-change “Health” column to “Missing”.</p>
+<p>Add information into the dataset based off the Comments column. If
+Comments column contain the phrase “browsed”, mark the Elk Browsed
+column as “Y” (yes), otherwise mark “N” (no). If Comments contain
+“missing/presumed dead” change Health column value to “Missing”.</p>
 <pre class="r"><code>trees &lt;- trees %&gt;%
   mutate(`Elk Browse` = case_when(grepl(&quot;browsed&quot;, Comment, ignore.case = TRUE) ~ &quot;Y&quot;, TRUE ~ &quot;N&quot;))
 
@@ -494,6 +504,8 @@ trees &lt;- trees %&gt;%
   mutate(Health = case_when(lag(Health, n= 1, order_by = Measurement.Year) == &quot;Dying&quot; &amp;
   Health == &quot;Missing&quot; ~ &quot;Dead&quot;, TRUE ~ Health))
 
+trees$Health[trees$Health==&quot;Dying&quot;] &lt;- &quot;Alive&quot;
+
 trees &lt;- trees %&gt;%
   group_by(`Tree Number`, Site, `Seed Zone`) %&gt;%
   arrange(Measurement.Year) %&gt;%
@@ -515,7 +527,6 @@ trees &lt;- trees %&gt;%
 <p>Please use this data in analyses. Please make any changes or
 corrections to the data in this R markdown so everyone is using the same
 dataset in the analyses.</p>
-</div>
 </div>
 
 
