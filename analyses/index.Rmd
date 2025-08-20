@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 |:----------:|:----------:|:----------:|:----------:|:----------:|
 |[Welcome](https://jmhulbert.github.io/adaptation)|[Data](https://jmhulbert.github.io/adaptation/data)|[Analyses](https://jmhulbert.github.io/adaptation/analyses)|
 |             |           |            |            |            |
-![](~/GitHub/adaptation/images/IMG_1915.jpg)
+![](https://raw.githubusercontent.com/zarigal/adaptation/refs/heads/main/images/IMG_1915.JPG)
 
 ## Purpose
 
@@ -38,6 +38,8 @@ library(patchwork)
 library(zoo)
 library(readxl)
 library(knitr)
+library(ggpubr)
+library(car)
 ```
 
 ### Import data
@@ -335,19 +337,22 @@ trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('A
 ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip() + scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees", title = "Health Condition by Seed Zone and Site",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
 ```
 
+## Data Analyses
+
 ```{r}
 #Check normality and equality of variances within data 
-#library(car)
-#car::leveneTest(`Tree Height (cm)`~as.factor(`Seed Zone`), data=trees)
-#car::leveneTest(`Tree Diameter (mm)`~as.factor(`Seed Zone`), data=trees)
+car::leveneTest(Tree.Height..cm.~as.factor(Seed.Zone), data=trees.no.browse)
+car::leveneTest(Tree.Diameter..mm.~as.factor(Seed.Zone), data=trees.no.browse)
 #p = .6003, Not enough evidence to suggest there is not equality of variances, assume variances are equal
 
 #2a check normality
-#math.lm=lm(MathScore~as.factor(FivePlusHousehold)+as.factor(PublicPrivateSchool), data = ECLSK2011_Clean)
-#install.packages("ggpubr")
-#library(ggpubr)
-#ggqqplot(residuals(math.lm))
-#hist(residuals(math.lm))
+height.lm=lm(Tree.Height..cm.~as.factor(Seed.Zone), data = trees.no.browse)
+ggqqplot(residuals(height.lm))
+hist(residuals(height.lm))
+
+diameter.lm=lm(Tree.Diameter..mm.~as.factor(Seed.Zone), data = trees.no.browse)
+ggqqplot(residuals(diameter.lm))
+hist(residuals(diameter.lm))
 #Normailty assumed, qq plot of the residuals generally follows line of best fit and
 #histogram shows mainly normal distribution
 ```

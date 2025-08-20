@@ -8,12 +8,6 @@ date: "Last Update: `r Sys.Date()`"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-|            |            |            |            |            |
-|:----------:|:----------:|:----------:|:----------:|:----------:|
-|[Welcome](https://jmhulbert.github.io/adaptation)|[Data](https://jmhulbert.github.io/adaptation/data)|[Analyses](https://jmhulbert.github.io/adaptation/analyses)|
-|             |           |            |            |            |
-![](~/GitHub/adaptation/images/IMG_1906.jpg)
-
 ## Purpose 
 
 The purpose of this markdown document is to import, wrangle, and export the adaptation data for use in analyses and visualization. 
