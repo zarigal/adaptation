@@ -1,13 +1,20 @@
 ---
-title: "Data Analyses and Visualization"
+title: "Redcedar Adaptation Data Analyses and Visualization"
 output: html_document
+date: "Last Update: `r Sys.Date()`"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-##Purpose
+|            |            |            |            |            |
+|:----------:|:----------:|:----------:|:----------:|:----------:|
+|[Welcome](https://jmhulbert.github.io/adaptation)|[Data](https://jmhulbert.github.io/adaptation/data)|[Analyses](https://jmhulbert.github.io/adaptation/analyses)|
+|             |           |            |            |            |
+![](~/GitHub/adaptation/images/IMG_1915.jpg)
+
+## Purpose
 
 The purpose of this page is to document the analyses of the redcedar adaptation network data.
 
@@ -330,9 +337,9 @@ ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wra
 
 ```{r}
 #Check normality and equality of variances within data 
-library(car)
-car::leveneTest(`Tree Height (cm)`~as.factor(`Seed Zone`), data=trees)
-car::leveneTest(`Tree Diameter (mm)`~as.factor(`Seed Zone`), data=trees)
+#library(car)
+#car::leveneTest(`Tree Height (cm)`~as.factor(`Seed Zone`), data=trees)
+#car::leveneTest(`Tree Diameter (mm)`~as.factor(`Seed Zone`), data=trees)
 #p = .6003, Not enough evidence to suggest there is not equality of variances, assume variances are equal
 
 #2a check normality

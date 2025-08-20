@@ -1,6 +1,7 @@
 ---
 title: "Open Redcedar Adaptation Network"
 output: html_document
+date: "Last Update: `r Sys.Date()`"
 ---
 
 ```{r setup, include=FALSE}
