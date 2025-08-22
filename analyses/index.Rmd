@@ -187,21 +187,21 @@ The below plot shows the number of trees that fall under each Health condition: 
 * Note: Missing trees are classified as trees that were not found during remeasurements any time from 2023-2025.
 
 ```{r message=FALSE}
-treesno.condition.zone <- trees.no.browse %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+treesno.condition.zone <- trees.no.browse %>% filter(Elk.Browse == "N") %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Tree.Number)) %>% filter(Final.Health!="NA")
 
 ggplot(treesno.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Final.Health))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+ scale_y_continuous(breaks = c(0,25,50,75,100,125,150),expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",title ="Health Condition by Seed Zone", fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ---
 
-The below plot shows the number of trees that fall under each health condition sorted by seed zone and planting site.
+The below plot shows the number of trees that fall under each health condition sorted by seed zone and planting site for the most recent year's observations.
 
 ```{r message=FALSE}
-trees.condition <- trees %>% group_by(Site, Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+treesno.condition <- trees.no.browse %>% filter(Measurement.Year == 2025) %>% group_by(Site, Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Tree.Number)) %>% filter(Final.Health!="NA")
 
-trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dead','Dying','Missing'))
+treesno.condition$Final.Health <- factor(treesno.condition$Final.Health, levels=c('Alive','Dead','Dying','Missing'))
 
-ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip() + scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees", title = "Health Condition by Seed Zone and Site",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
+ggplot(treesno.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wrap(~Seed.Zone)+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip() + scale_y_continuous(expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees", title = "Health Condition by Seed Zone and Site",fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 ---
@@ -320,7 +320,7 @@ The below plots show the number of trees that fall under each Health condition: 
 * Note: Missing trees are classified as trees that were not found during re-measurements as of the most recent observation in 2025.
 
 ```{r message=FALSE}
-trees.condition.zone <- trees %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+trees.condition.zone <- trees %>% filter(Measurement.Year == 2025) %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Tree.Number)) %>% filter(Final.Health!="NA")
 
 ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Final.Health))+geom_col(position = position_dodge2(preserve = "single",reverse=TRUE))+theme_bw()+coord_flip()+ scale_y_continuous(breaks = c(0,25,50,75,100,125,150),expand = expansion(mult = c(0.05, 0.1))) +scale_fill_manual(values=c( "#009E73","#56B4E9","#E69F00","#CC79A7"))+labs(x="Site",y="Number of Trees",title ="Health Condition by Seed Zone", fill="Health Condition") +geom_text(aes(label=n,group=Final.Health),position = position_dodge2(width=0.9,preserve = "single",reverse=TRUE),hjust=-0.1) + theme(plot.title = element_text(hjust = 0.5))
 ```
@@ -330,7 +330,7 @@ ggplot(trees.condition.zone,aes(x = reorder(Seed.Zone, -n),n,fill=Final.Health))
 The below plot shows the number of trees that fall under each health condition sorted by seed zone and planting site.
 
 ```{r message=FALSE}
-trees.condition <- trees %>% group_by(Site, Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
+trees.condition <- trees %>% filter(Measurement.Year == 2025) %>% group_by(Site, Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Tree.Number)) %>% filter(Final.Health!="NA")
 
 trees.condition$Final.Health <- factor(trees.condition$Final.Health, levels=c('Alive','Dead','Dying','Missing'))
 
