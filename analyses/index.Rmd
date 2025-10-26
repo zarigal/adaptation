@@ -329,6 +329,17 @@ ggplot(trees.condition,aes(x = reorder(Site, -n),n,fill=Final.Health))+facet_wra
 ```
 
 ```{r}
+ggplot(trees,aes(Tree.Height..cm.,fill=Seed.Zone))+geom_histogram()
+```
+
+```{r}
+ggplot(trees,aes(Tree.Diameter..mm.,fill=Seed.Zone))+geom_histogram()
+```
+
+
+
+
+```{r}
 #Check normality and equality of variances within data 
 library(car)
 car::leveneTest(`Tree Height (cm)`~as.factor(`Seed Zone`), data=trees)
