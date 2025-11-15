@@ -1,0 +1,196 @@
+---
+title: "Redcedar Adaptation Data Wrangling"
+output: html_document
+date: "Last Update: `r Sys.Date()`"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Purpose 
+
+The purpose of this markdown document is to import, wrangle, and export the adaptation data for use in analyses and visualization. 
+
+* The Data
+  + 2022 Measurements (Pre-planting or just after planting)
+  + 2023 Measurements (1 year after planting)
+  + 2024 Measurements (2 years after planting)
+  + 2025 Measurements (3 years after planting)
+
+***
+
+### Preliminary Data {.tabset .tabset-fade}
+
+Below you can explore some of the data available already. 
+
+> Note the trees were not stored in a manner to compare tree heights or diameters in the first measurement. For example, before planting, we kept the trees separate to avoid accidentally mixing an Oregon tree with a Washington tree.
+
+We plan to monitor the change in heights and diameters each year to compare between seed zones, sites, and annual climate variables. 
+
+## Data Download
+
+This webpage and data are hosted in a github repository. The content on this page is compiled using R Markdown, but the data is maintained as a .csv file.
+
+Download the data by visiting: https://github.com/jmhulbert/adaptation
+
+Anyone is welcome to collaborate to add or make changes to the github repository (https://github.com/jmhulbert/adaptation).
+
+    As a repository collaborator:
+        You are welcome to clone the repository to your system and work from the R Project file (adaptation.Rproj) in Rstudio or you can make changes to the .csv files (./data/).
+        You can also make changes directly to the .csv file through your browser.
+        Or you can make changes by downloading the .csv file, altering, committing and pushing it back to the repository.
+        You can also drop new .csv files into the ./data/ folder in the repository.
+
+Note that you need a github account to collaborate or make changes. Feel free to contact JM Hulbert for additional details and instructions, or to request a change or addition.
+
+Note the Markdown (index.Rmd) file will need to be knit before the changes will be visible on this webpage.  
+
+
+### Load packages
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(kableExtra)
+library(patchwork)
+library(zoo)
+library(readxl)
+```
+
+### Import data files
+```{r message=FALSE, warning=FALSE}
+y1 <- read_csv("2022 Measurements.csv")
+y2 <- read_excel("2023 MeasurementsCorrected.xlsx")
+y3 <- read_excel("2024 Measurementsv3.xlsx")
+y4 <- read_excel("2025 Measurements.xlsx", sheet = "2025")
+```
+
+## Data Merging
+Add measurement year column for each year's dataset.
+```{r}
+y1$Measurement.Year <- 2022
+y2$Measurement.Year <- 2023
+y3$Measurement.Year <- 2024
+y4 <- cbind(y4, Measurement.Year= 2025)
+```
+
+Remove extra inconsistent columns between each year's dataset. Add "Temp Tree Numbers" for year 1 dataset and if "Health" column NA change to "Alive".
+```{r}
+y4 <- y4 %>% select(-c("Year Measured"))
+y1 <- y1 %>% select(-c("Year Measured","Color"))
+y2 <- y2 %>% select(-c("Year Measured","Color"))
+y3 <- y3 %>% select(-c("Year Measured"))
+
+y1 <- y1 %>% mutate(`Temp Tree Number` = row_number())
+
+y1 <- y1 %>%
+  mutate(Health = ifelse(is.na(Health), "Alive", Health))
+```
+
+Make data format consistent between all years.
+```{r}
+y1$`Date Measured` <- as.Date(y1$`Date Measured`,format = "%m/%d/%y")
+y1$`Date Planted` <- as.Date(y1$`Date Planted`,format = "%m/%d/%y")
+y2$`Date Measured` <- as.Date(y2$`Date Measured`,format ="%m/%d/%y")
+y3$`Date Measured` <- as.Date(y3$`Date Measured`,format ="%m/%d/%y")
+y4$`Date Measured` <- as.Date(y4$`Date Measured`,format = "%m/%d/%y")
+```
+
+Merge all years' data frames together.
+```{r}
+trees <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% bind_rows(.,y4) %>% filter(Site!="" & Site!="Puyallup") %>% droplevels()
+```
+
+
+## Data Quality Control
+
+Add information into the dataset based off the Comments column. If Comments column contain the phrase "browsed", mark the Elk Browsed column as "Y" (yes), otherwise mark "N" (no). If Comments contain "missing/presumed dead" change Health column value to "Missing".
+```{r}
+trees <- trees %>%
+  mutate(`Elk Browse` = case_when(grepl("browsed", Comment, ignore.case = TRUE) ~ "Y", TRUE ~ "N"))
+
+trees<- trees %>%
+  mutate(`Health` = case_when(grepl("Missing/presumed dead", Comment, ignore.case = TRUE) ~ "Missing", TRUE ~ `Health`))
+```
+
+Fix labeling inconsistencies within cells.
+```{r}
+trees$Health[trees$Health==""] <- "Missing"
+trees$Health[trees$Health=="missing"] <- "Missing"
+trees$Health[trees$Health == "dead"] <- "Dead"
+trees$`Seed Zone`[trees$`Seed Zone`=="Wa"] <- "WA"
+trees <- trees %>% droplevels()
+```
+
+Make "New Tree Number", "Temp Tree Numbers", and "Date Planted" values match with their respective Tree Number based off Site and Seed Zone.
+```{r}
+trees <- trees %>% group_by(`Tree Number`, Site, `Seed Zone`) %>% 
+  mutate(`New Tree Number` = if_else(is.na(`New Tree Number`),first(na.omit(`New Tree Number`)),`New Tree Number`)) %>%
+  ungroup()
+
+trees <- trees %>% group_by(`Tree Number`, Site, `Seed Zone`) %>%
+  mutate(`Temp Tree Number` = if_else(is.na(`Temp Tree Number`),first(na.omit(`Temp Tree Number`)),`Temp Tree Number`))%>%
+  ungroup()
+
+trees <- trees %>%  group_by(`Tree Number`, Site, `Seed Zone`) %>%
+  mutate(`Date Planted` = if_else(is.na(`Date Planted`),first(na.omit(`Date Planted`)),`Date Planted`)) %>%
+  ungroup()
+```
+
+Add "Planted Growth Days" column to calculate the number of days since the trees have been planted from their measurement date.
+```{r}
+trees$`Date Measured` <- as.Date(trees$`Date Measured`,"%m/%d/%y")
+trees$`Date Planted` <- as.Date(trees$`Date Planted`,"%m/%d/%y")
+trees <- trees %>% 
+  mutate(`Planted Growth Days`=`Date Measured`-`Date Planted`)
+```
+
+Check if health condition data between years is logical:
+
+1. If previous year's health condition is "Dead" then change following year's health conditon to dead
+2. If previous year's health condition is "Dying" and following year's condition is "Missing", change "Missing" to "Dead"
+3. If most recent year's health condition is NA change that health condition to the previous year's
+4. Create a final health column to reflect the most recent year's health condition
+  
+```{r}
+trees <- trees %>%
+  group_by(`Tree Number`, Site, `Seed Zone`) %>%
+  arrange(Measurement.Year) %>%
+  mutate(Previous_Value = lag(Health), Health = case_when(!is.na(Previous_Value) &
+  Previous_Value == "Dead" ~ "Dead", TRUE ~ Health)) %>%
+  select(-Previous_Value)
+
+trees <- trees %>%
+  group_by(`Tree Number`, Site, `Seed Zone`) %>%
+  mutate(Health = case_when(lag(Health, n= 1, order_by = Measurement.Year) == "Dying" &
+  Health == "Missing" ~ "Dead", TRUE ~ Health))
+
+trees$Health[trees$Health=="Dying"] <- "Alive"
+
+trees <- trees %>%
+  group_by(`Tree Number`, Site, `Seed Zone`) %>%
+  arrange(Measurement.Year) %>%
+  mutate(Previous.Health = lag(Health), Health = case_when(is.na(Health) ~ Previous.Health, TRUE ~ Health)) %>%
+  select(-Previous.Health)
+
+trees <- trees %>%
+  group_by(`Tree Number`, Site, `Seed Zone`) %>%
+  tidyr::complete(Measurement.Year = seq(min(Measurement.Year), max(Measurement.Year)), fill = list(Health = NA)) %>%
+  mutate(Final.Health = last(Health)) %>%
+  mutate(Final.Health = zoo::na.locf(Final.Health, na.rm =  FALSE, fromLast = TRUE)) %>%
+  mutate(Final.Health = ifelse(is.na(Health) & is.na(Final.Health), NA, Final.Health)) %>%
+  ungroup()
+```
+
+## Exported Data 
+```{r}
+write.csv(trees, file = "./adaptation-data-merged.csv")
+```
+[adaptation-data-merged.csv](https://raw.githubusercontent.com/zarigal/adaptation/refs/heads/main/data/adaptation-data-merged.csv)
+
+Please use this data in analyses. Please make any changes or corrections to the data in this R markdown so everyone is using the same dataset in the analyses.
+
+
+
+
+
+
