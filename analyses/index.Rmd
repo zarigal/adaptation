@@ -59,20 +59,21 @@ treesno.wide <- trees.no.browse %>% pivot_wider(
     values_from = c(Tree.Height..cm., Tree.Diameter..mm.),
     names_glue = "{.value}_{Measurement.Year}")
 
-treesno.wide.growth <- treesno.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y3.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2024, y4.height.growth = Tree.Height..cm._2026 - Tree.Height..cm._2025, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, y3.diameter.growth = Tree.Diameter..mm._2025 - Tree.Diameter..mm._2024, total.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2025-Tree.Diameter..mm._2022, )
+treesno.wide.growth <- treesno.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y3.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2024, y4.height.growth = Tree.Height..cm._2026 - Tree.Height..cm._2025, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, y3.diameter.growth = Tree.Diameter..mm._2025 - Tree.Diameter..mm._2024, y4.diameter.growth = Tree.Diameter..mm._2026 - Tree.Diameter..mm._2025, total.height.growth = Tree.Height..cm._2026-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2026-Tree.Diameter..mm._2022)
 
 treesno.wide.pos.total <- treesno.wide.growth %>% filter(total.height.growth>0 & total.diameter.growth>0)
 treesno.wide.pos.y1 <- treesno.wide.growth %>% filter(y1.height.growth>0 & y1.diameter.growth>0)
 treesno.wide.pos.y2 <- treesno.wide.growth %>% filter(y2.height.growth>0 & y2.diameter.growth>0)
 treesno.wide.pos.y3 <- treesno.wide.growth %>% filter(y3.height.growth>0 & y3.diameter.growth>0)
+treesno.wide.pos.y4 <- treesno.wide.growth %>% filter(y4.height.growth>0 & y4.diameter.growth>0)
 treesno.wide.pos.all <- treesno.wide.growth %>% filter(y1.height.growth>0 & y1.diameter.growth>0 &
-  y2.height.growth>0 & y2.diameter.growth>0 & y3.height.growth>0 & y3.diameter.growth>0)
+  y2.height.growth>0 & y2.diameter.growth>0 & y3.height.growth>0 & y3.diameter.growth>0 & y4.diameter.growth>0)
 ```
 
 
 #### Number of Trees
 
-The below table lists the number of trees that were remeasured in 2025 at each site, excluding outliers. 
+The below table lists the number of trees that were remeasured in 2026 at each site, excluding outliers. 
 
 * Note, this table only includes trees that had positive height and diameter growth. For example, some trees were heavily browsed in 2024 and therefore may be shorter than trees in 2023.
 
@@ -90,21 +91,23 @@ The below table lists mean height and diameter increases between seed zones.
 
 ```{r message=FALSE}
 treesno.summary <- treesno.wide.pos.all %>% group_by(Seed.Zone)  %>% summarize(n=n(),
-meanno.height.2025=mean(Tree.Height..cm._2025),
-meanno.diameter.2025=mean(Tree.Diameter..mm._2025),
+meanno.height.2026=mean(Tree.Height..cm._2026),
+meanno.diameter.2026=mean(Tree.Diameter..mm._2026),
 meanno.y1.height.growth=mean(y1.height.growth,na.rm=TRUE),
 meanno.y1.diameter.growth=mean(y1.diameter.growth,na.rm=TRUE),
 meanno.y2.height.growth=mean(y2.height.growth,na.rm=TRUE),
 meanno.y2.diameter.growth=mean(y2.diameter.growth,na.rm=TRUE),
 meanno.y3.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
 meanno.y3.height.growth=mean(y3.height.growth,na.rm=TRUE),
+meanno.y4.diameter.growth=mean(y4.diameter.growth,na.rm=TRUE),
+meanno.y4.height.growth=mean(y4.height.growth,na.rm=TRUE),
 meanno.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 meanno.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
 
-kable(treesno.summary,col.names = c("Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2,format = "html",table.attr='class="scrollable-table"') %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "200px")
+kable(treesno.summary,col.names = c("Seed Zone", "Number of Trees", "2026 Mean Height (cm)", "2026 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Mean Year 4 Height Growth (cm)","Mean Year 4 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2,format = "html",table.attr='class="scrollable-table"') %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "200px")
 ```
 
-Trees from Oregon had a mean total height increase of `r round(treesno.summary$meanno.total.height.growth[treesno.summary$Seed.Zone=="OR"],2)`cm and trees from Washington had a mean total height increase of `r round(treesno.summary$meanno.total.height.growth[treesno.summary$Seed.Zone=="WA"],2)`cm.
+Trees from Oregon had a mean total height increase of `r round(treesno.summary$meanno.total.height.growth[treesno.summary$Seed.Zone=="OR"],2)` cm and trees from Washington had a mean total height increase of `r round(treesno.summary$meanno.total.height.growth[treesno.summary$Seed.Zone=="WA"],2)` cm.
 
 ---
 
@@ -115,19 +118,21 @@ The table below provides the same data, expect the means were calculated across 
 ```{r message=FALSE}
 treesno.summary.sites <- treesno.wide.pos.all %>% group_by(Site,Seed.Zone)  %>% summarize(
 n=n(),
-meanno.height.2025=mean(Tree.Height..cm._2025),
-meanno.diameter.2025=mean(Tree.Diameter..mm._2025),
+meanno.height.2026=mean(Tree.Height..cm._2026),
+meanno.diameter.2026=mean(Tree.Diameter..mm._2026),
 meanno.y1.height.growth=mean(y1.height.growth,na.rm=TRUE),
 meanno.y1.diameter.growth=mean(y1.diameter.growth,na.rm=TRUE),
 meanno.y2.height.growth=mean(y2.height.growth,na.rm=TRUE),
 meanno.y2.diameter.growth=mean(y2.diameter.growth,na.rm=TRUE),
 meanno.y3.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
 meanno.y3.height.growth=mean(y3.height.growth, na.rm = TRUE),
+meanno.y4.diameter.growth=mean(y4.diameter.growth,na.rm=TRUE),
+meanno.y4.height.growth=mean(y4.height.growth, na.rm = TRUE),
 meanno.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 meanno.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
 
 library(knitr)
-kable(treesno.summary.sites, col.names = c("Site", "Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
+kable(treesno.summary.sites, col.names = c("Site", "Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Mean Year 4 Height Growth (cm)","Mean Year 4 Diameter Growth (mm)","Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
 ```
 
 ---
@@ -163,9 +168,10 @@ The below plots show the distribution of growth in tree diameter for each seed z
 P1 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y1.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)", x= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P2 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y2.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)",x= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P3 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y3.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)",x= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
-P4 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
+P4 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y4.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)",x= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
+P5 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
 
-height_plots <- P1 + P2 + P3 + P4
+height_plots <- P1 + P2 + P3 + P4 + P5
 height_plots + plot_annotation(title = "Growth in Diameter (mm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
@@ -181,7 +187,7 @@ ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Site)) +geo
 
 The below plot shows the number of trees that fall under each Health condition: alive, dead, or missing.
 
-* Note: Missing trees are classified as trees that were not found during remeasurements any time from 2023-2025.
+* Note: Missing trees are classified as trees that were not found during remeasurements any time from 2023-2026.
 
 ```{r message=FALSE}
 treesno.condition.zone <- trees.no.browse %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
@@ -218,14 +224,15 @@ trees.wide <- trees %>% pivot_wider(
     values_from = c(Tree.Height..cm., Tree.Diameter..mm.),
     names_glue = "{.value}_{Measurement.Year}") 
 
-trees.wide.growth <- trees.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y3.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2024, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, y3.diameter.growth = Tree.Diameter..mm._2025 - Tree.Diameter..mm._2024, total.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2025-Tree.Diameter..mm._2022)
+trees.wide.growth <- trees.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y3.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2024, y4.height.growth = Tree.Height..cm._2026 - Tree.Height..cm._2025, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, y3.diameter.growth = Tree.Diameter..mm._2025 - Tree.Diameter..mm._2024, y4.diameter.growth = Tree.Diameter..mm._2026 - Tree.Diameter..mm._2025, total.height.growth = Tree.Height..cm._2026-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2026-Tree.Diameter..mm._2022)
 
 #trees.wide.pos.total <- trees.wide.growth %>% filter(total.height.growth>0 & total.diameter.growth>0)
 #trees.wide.pos.y1 <- trees.wide.growth %>% filter(y1.height.growth>0 & y1.diameter.growth>0)
 #trees.wide.pos.y2 <- trees.wide.growth %>% filter(y2.height.growth>0 & y2.diameter.growth>0)
 #trees.wide.pos.y3 <- trees.wide.growth %>% filter(y3.height.growth>0 & y3.diameter.growth>0)
 trees.wide.pos.all <- trees.wide.growth %>% filter(y1.height.growth>0 & y1.diameter.growth>0 &
-  y2.height.growth>0 & y2.diameter.growth>0 & y3.height.growth>0 & y3.diameter.growth>0)
+  y2.height.growth>0 & y2.diameter.growth>0 & y3.height.growth>0 & y3.diameter.growth>0 & 
+    y4.diameter.growth>0 & y4.height.growth>0)
 
 ## above code removes observations with negative growth year to year (from browsing)
 ```
@@ -267,16 +274,18 @@ mean.y2.height.growth=mean(y2.height.growth,na.rm=TRUE),
 mean.y2.diameter.growth=mean(y2.diameter.growth,na.rm=TRUE),
 mean.y3.height.growth=mean(y3.height.growth,na.rm=TRUE),
 mean.y3.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
+mean.y4.height.growth=mean(y3.height.growth,na.rm=TRUE),
+mean.y4.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
 mean.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 mean.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
 
 
-kable(trees.summary,col.names = c("Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2,format = "html", table.attr='class="scrollable-table"') %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
+kable(trees.summary,col.names = c("Seed Zone", "Number of Trees", "2026 Mean Height (cm)", "2026 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Mean Year 4 Height Growth (cm)","Mean Year 4 Diameter Growth (mm)","Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2,format = "html", table.attr='class="scrollable-table"') %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "300px")
 ```
 
 
 
-Trees from Oregon had a mean total height increase of `r round(trees.summary$mean.total.height.growth[trees.summary$Seed.Zone=="OR"],2)`cm and trees from Washington had a mean total height increase of `r round(trees.summary$mean.total.height.growth[trees.summary$Seed.Zone=="WA"],2)`cm.
+Trees from Oregon had a mean total height increase of `r round(trees.summary$mean.total.height.growth[trees.summary$Seed.Zone=="OR"],2)` cm and trees from Washington had a mean total height increase of `r round(trees.summary$mean.total.height.growth[trees.summary$Seed.Zone=="WA"],2)` cm.
 
 ---
 
@@ -287,19 +296,21 @@ The table below provides the same data, expect the means were calculated across 
 ```{r message=FALSE}
 trees.summary.sites <- trees.wide.pos.all %>% group_by(Site,Seed.Zone)  %>% summarize(
 n=n(),
-mean.height.2025=mean(Tree.Height..cm._2025),
-mean.diameter.2025=mean(Tree.Diameter..mm._2025),
+mean.height.2026=mean(Tree.Height..cm._2025),
+mean.diameter.2026=mean(Tree.Diameter..mm._2025),
 mean.y1.height.growth=mean(y1.height.growth,na.rm=TRUE),
 mean.y1.diameter.growth=mean(y1.diameter.growth,na.rm=TRUE),
 mean.y2.height.growth=mean(y2.height.growth,na.rm=TRUE),
 mean.y2.diameter.growth=mean(y2.diameter.growth,na.rm=TRUE),
 mean.y3.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
 mean.y3.height.growth=mean(y3.height.growth, na.rm = TRUE),
+mean.y4.diameter.growth=mean(y3.diameter.growth,na.rm=TRUE),
+mean.y4.height.growth=mean(y3.height.growth, na.rm = TRUE),
 mean.total.height.growth=mean(total.height.growth,na.rm=TRUE),
 mean.total.diameter.growth=mean(total.diameter.growth,na.rm=TRUE))
 
 
-kable(trees.summary.sites, col.names = c("Site", "Seed Zone", "Number of Trees", "2025 Mean Height (cm)", "2025 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "400px")
+kable(trees.summary.sites, col.names = c("Site", "Seed Zone", "Number of Trees", "2026 Mean Height (cm)", "2026 Mean Diameter (mm)", "Mean Year 1 Height Growth (cm)", "Mean Year 1 Diameter Growth (mm)", "Mean Year 2 Height Growth (cm)","Mean Year 2 Diameter Growth (mm)", "Mean Year 3 Height Growth (cm)","Mean Year 3 Diameter Growth (mm)", "Mean Year 4 Height Growth (cm)","Mean Year 4 Diameter Growth (mm)","Total Mean Height Growth (cm)","Total Mean Diameter Growth (mm)"), digits = 2) %>% kable_material(c("striped", "hover","condensed")) %>% kable_styling(full_width = F) %>% scroll_box(height = "400px")
 ```
 
 
@@ -311,13 +322,14 @@ The below plots show the distributions in increases in tree height for each seed
 P1 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y1.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)", x= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P2 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y2.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P3 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y3.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
-P4 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
+P4 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,y4.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
+P5 <- ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
 ```
 
 
 
 ```{r}
-height_plots <- P1 + P2 / P3 + P4
+height_plots <- P1 + P2 + P3 + P4 + P5
 height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
@@ -326,7 +338,8 @@ height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = 
 G1 <- ggplot(trees.wide.pos.all,aes(y1.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
 G2 <- ggplot(trees.wide.pos.all,aes(y2.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
 G3 <- ggplot(trees.wide.pos.all,aes(y3.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G1 / G2 / G3
+G4 <- ggplot(trees.wide.pos.all,aes(y4.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G1 / G2 / G3 / G4
 ```
 
 
@@ -342,7 +355,7 @@ ggplot(trees.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Site)) +geom_bo
 
 The below plots show the number of trees that fall under each Health condition: alive, dead, or missing.
 
-* Note: Missing trees are classified as trees that were not found during re-measurements as of the most recent observation in 2025.
+* Note: Missing trees are classified as trees that were not found during re-measurements as of the most recent observation in 2026.
 
 ```{r message=FALSE}
 trees.condition.zone <- trees %>% group_by(Seed.Zone,Final.Health) %>% summarize(n=n_distinct(Temp.Tree.Number)) %>% filter(Final.Health!="NA")
