@@ -33,6 +33,7 @@ library(readxl)
 library(knitr)
 library(lme4)
 library(lmerTest)
+library(readr)
 ```
 
 ### Import data
@@ -58,7 +59,7 @@ treesno.wide <- trees.no.browse %>% pivot_wider(
     values_from = c(Tree.Height..cm., Tree.Diameter..mm.),
     names_glue = "{.value}_{Measurement.Year}")
 
-treesno.wide.growth <- treesno.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y3.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2024, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, y3.diameter.growth = Tree.Diameter..mm._2025 - Tree.Diameter..mm._2024, total.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2025-Tree.Diameter..mm._2022)
+treesno.wide.growth <- treesno.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y3.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2024, y4.height.growth = Tree.Height..cm._2026 - Tree.Height..cm._2025, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, y3.diameter.growth = Tree.Diameter..mm._2025 - Tree.Diameter..mm._2024, total.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2025-Tree.Diameter..mm._2022, )
 
 treesno.wide.pos.total <- treesno.wide.growth %>% filter(total.height.growth>0 & total.diameter.growth>0)
 treesno.wide.pos.y1 <- treesno.wide.growth %>% filter(y1.height.growth>0 & y1.diameter.growth>0)
@@ -139,9 +140,10 @@ The below plots show the distributions in increases in tree height for each seed
 P1 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y1.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)", x= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P2 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y2.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P3 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y3.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
-P4 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
+P4 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y4.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
+P5 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
 
-height_plots <- P1 + P2 + P3 + P4
+height_plots <- P1 + P2 + P3 + P4 + P5
 height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
