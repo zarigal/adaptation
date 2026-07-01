@@ -61,7 +61,7 @@ treesno.wide <- trees.no.browse %>% pivot_wider(
 
 treesno.wide.growth <- treesno.wide %>% mutate(y1.height.growth = Tree.Height..cm._2023-Tree.Height..cm._2022, y2.height.growth = Tree.Height..cm._2024-Tree.Height..cm._2023, y3.height.growth = Tree.Height..cm._2025-Tree.Height..cm._2024, y4.height.growth = Tree.Height..cm._2026 - Tree.Height..cm._2025, y1.diameter.growth = Tree.Diameter..mm._2023-Tree.Diameter..mm._2022, y2.diameter.growth = Tree.Diameter..mm._2024-Tree.Diameter..mm._2023, y3.diameter.growth = Tree.Diameter..mm._2025 - Tree.Diameter..mm._2024, y4.diameter.growth = Tree.Diameter..mm._2026 - Tree.Diameter..mm._2025, total.height.growth = Tree.Height..cm._2026-Tree.Height..cm._2022, total.diameter.growth = Tree.Diameter..mm._2026-Tree.Diameter..mm._2022)
 
-treesno.wide.growth <- trees.wide.growth %>% filter(!is.na(y1.height.growth)) %>% filter(!is.na(y2.height.growth)) %>% filter(!is.na(y3.height.growth)) %>% filter(!is.na(y4.height.growth)) %>%
+treesno.wide.growth <- treesno.wide.growth %>% filter(!is.na(y1.height.growth)) %>% filter(!is.na(y2.height.growth)) %>% filter(!is.na(y3.height.growth)) %>% filter(!is.na(y4.height.growth)) %>%
   filter(!is.na(y1.diameter.growth)) %>% filter(!is.na(y2.diameter.growth)) %>% filter(!is.na(y3.diameter.growth)) %>% filter(!is.na(y4.diameter.growth))
 
 treesno.wide.pos.total <- treesno.wide.growth %>% filter(total.height.growth>0 & total.diameter.growth>0)
@@ -178,10 +178,10 @@ height_plots <- P1 + P2 + P3 + P4 + P5
 height_plots + plot_annotation(title = "Growth in Diameter (mm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 ```{r}
-G1 <- ggplot(treesno.wide.growth,aes(y1.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G2 <- ggplot(treesno.wide.growth,aes(y2.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G3 <- ggplot(treesno.wide.growth,aes(y3.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G4 <- ggplot(treesno.wide.growth,aes(y4.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G1 <- ggplot(treesno.wide.growth,aes(y1.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G2 <- ggplot(treesno.wide.growth,aes(y2.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G3 <- ggplot(treesno.wide.growth,aes(y3.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G4 <- ggplot(treesno.wide.growth,aes(y4.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
 G1 / G2 / G3 / G4
 ```
 
@@ -341,10 +341,10 @@ height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = 
 
 
 ```{r}
-G1 <- ggplot(trees.wide.growth,aes(y1.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G2 <- ggplot(trees.wide.growth,aes(y2.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G3 <- ggplot(trees.wide.growth,aes(y3.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G4 <- ggplot(trees.wide.growth,aes(y4.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Height Growth (cm)",y= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G1 <- ggplot(trees.wide.growth,aes(y1.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G2 <- ggplot(trees.wide.growth,aes(y2.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G3 <- ggplot(trees.wide.growth,aes(y3.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
+G4 <- ggplot(trees.wide.growth,aes(y4.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
 G1 / G2 / G3 / G4
 ```
 
