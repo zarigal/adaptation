@@ -87,7 +87,7 @@ Remove extra inconsistent columns between each year's dataset. Add "Temp Tree Nu
 y4 <- y4 %>% select(-c("Year Measured"))
 y1 <- y1 %>% select(-c("Year Measured","Color"))
 y2 <- y2 %>% select(-c("Year Measured","Color"))
-y3 <- y3 %>% select(-c("Year Measured"))
+#y3 <- y3 %>% select(-c("Year Measured"))
 y5 <- y5[-(239:361),]
 y5 <- y5 %>% select(-c("Year Measured"))
 
@@ -160,7 +160,7 @@ trees <- trees %>%
 
 Check if health condition data between years is logical:
 
-1. If previous year's health condition is "Dead" then change following year's health conditon to dead
+1. If previous year's health condition is "Dead" then change following year's health condition to dead
 2. If previous year's health condition is "Dying" and following year's condition is "Missing", change "Missing" to "Dead"
 3. If most recent year's health condition is NA change that health condition to the previous year's
 4. Create a final health column to reflect the most recent year's health condition
