@@ -34,6 +34,9 @@ library(knitr)
 library(lme4)
 library(lmerTest)
 library(readr)
+library(gridExtra)
+library(ggpubr)
+library(cowplot)
 ```
 
 ### Import data
@@ -151,8 +154,11 @@ P3 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y3.height.growth,fill=Seed.Zone)
 P4 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y4.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P5 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
 
-height_plots <- P1 + P2 + P3 + P4 + P5
-height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
+plots1 <-plot_grid(P1, P2, align = "v", nrow = 2, ncol = 1, rel_heights = c(1/2,1/2))
+plots2 <- plot_grid(P3, P4, align = "v", nrow = 2, ncol = 1, rel_heights = c(1/2,1/2))
+plots3 <- plot_grid(P5, align = "v", nrow = 1, ncol = 1, rel_heights = 1)
+plots <- plots1 + plots2 + plots3
+plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 The below plot shows the distributions in cumulative increase in tree height for each seed zone and site.
@@ -174,15 +180,19 @@ P3 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y3.diameter.growth,fill=Seed.Zon
 P4 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,y4.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)",x= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P5 <- ggplot(treesno.wide.pos.all,aes(Seed.Zone,total.diameter.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Diameter Growth (mm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
 
-height_plots <- P1 + P2 + P3 + P4 + P5
-height_plots + plot_annotation(title = "Growth in Diameter (mm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
+plots1 <-plot_grid(P1, P2, align = "v", nrow = 2, ncol = 1, rel_heights = c(1/2,1/2))
+plots2 <- plot_grid(P3, P4, align = "v", nrow = 2, ncol = 1, rel_heights = c(1/2,1/2))
+plots3 <- plot_grid(P5, align = "v", nrow = 1, ncol = 1, rel_heights = 1)
+plots <- plots1 + plots2 + plots3
+plots + plot_annotation(title = "Growth in Diameter (mm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 ```{r}
 G1 <- ggplot(treesno.wide.growth,aes(y1.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 1 Growth") + theme(plot.title = element_text(hjust = 0.5))
 G2 <- ggplot(treesno.wide.growth,aes(y2.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 2 Growth") + theme(plot.title = element_text(hjust = 0.5))
 G3 <- ggplot(treesno.wide.growth,aes(y3.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
 G4 <- ggplot(treesno.wide.growth,aes(y4.diameter.growth,Seed.Zone,fill=Seed.Zone))+geom_boxplot(alpha=0.7) +theme_bw() +guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(x= "Diameter Growth (mm)",y= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
-G1 / G2 / G3 / G4
+
+G1 / G2/ G3 / G4
 ```
 
 The below plots show the distributions in increases in tree diameter for each seed zone and site.
@@ -330,13 +340,12 @@ P2 <- ggplot(trees.wide.growth,aes(Seed.Zone,y2.height.growth,fill=Seed.Zone)) +
 P3 <- ggplot(trees.wide.growth,aes(Seed.Zone,y3.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 3 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P4 <- ggplot(trees.wide.growth,aes(Seed.Zone,y4.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Year 4 Growth") + theme(plot.title = element_text(hjust = 0.5))
 P5 <- ggplot(trees.wide.growth,aes(Seed.Zone,total.height.growth,fill=Seed.Zone)) +geom_violin(alpha=0.7) +geom_boxplot(alpha=0.7) +theme_bw()+guides(fill="none") +scale_fill_manual(values=c("#fe9929", "#7fcdbb")) +labs(y= "Height Growth (cm)",x= "Seed Source",title="Cumulative Growth") + theme(plot.title = element_text(hjust = 0.5))
-```
 
-
-
-```{r}
-height_plots <- P1 + P2 + P3 + P4 + P5
-height_plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
+plots1 <-plot_grid(P1, P2, align = "v", nrow = 2, ncol = 1, rel_heights = c(1/2,1/2))
+plots2 <- plot_grid(P3, P4, align = "v", nrow = 2, ncol = 1, rel_heights = c(1/2,1/2))
+plots3 <- plot_grid(P5, align = "v", nrow = 1, ncol = 1, rel_heights = 1)
+plots <- plots1 + plots2 + plots3
+plots + plot_annotation(title = "Growth in Height (cm) by Year", theme = theme(plot.title = element_text(hjust = 0.5)))
 ```
 
 
