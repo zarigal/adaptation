@@ -23,6 +23,7 @@ The purpose of this markdown document is to import, wrangle, and export the adap
   + 2023 Measurements (1 year after planting)
   + 2024 Measurements (2 years after planting)
   + 2025 Measurements (3 years after planting)
+  + 2026 Measurements (4 years after planting)
 
 ***
 
@@ -68,6 +69,7 @@ y1 <- read_csv("2022 Measurements.csv")
 y2 <- read_excel("2023 MeasurementsCorrected.xlsx")
 y3 <- read_excel("2024 Measurementsv3.xlsx")
 y4 <- read_excel("2025 Measurements.xlsx", sheet = "2025")
+y5 <- read_excel("WRC Tree Measurements 2025.xlsx", sheet = "2026")
 ```
 
 ## Data Merging
@@ -77,6 +79,7 @@ y1$Measurement.Year <- 2022
 y2$Measurement.Year <- 2023
 y3$Measurement.Year <- 2024
 y4 <- cbind(y4, Measurement.Year= 2025)
+y5 <- cbind(y5, Measurement.Year = 2026)
 ```
 
 Remove extra inconsistent columns between each year's dataset. Add "Temp Tree Numbers" for year 1 dataset and if "Health" column NA change to "Alive".
@@ -84,7 +87,9 @@ Remove extra inconsistent columns between each year's dataset. Add "Temp Tree Nu
 y4 <- y4 %>% select(-c("Year Measured"))
 y1 <- y1 %>% select(-c("Year Measured","Color"))
 y2 <- y2 %>% select(-c("Year Measured","Color"))
-y3 <- y3 %>% select(-c("Year Measured"))
+#y3 <- y3 %>% select(-c("Year Measured"))
+y5 <- y5[-(239:361),]
+y5 <- y5 %>% select(-c("Year Measured"))
 
 y1 <- y1 %>% mutate(`Temp Tree Number` = row_number())
 
@@ -99,11 +104,14 @@ y1$`Date Planted` <- as.Date(y1$`Date Planted`,format = "%m/%d/%y")
 y2$`Date Measured` <- as.Date(y2$`Date Measured`,format ="%m/%d/%y")
 y3$`Date Measured` <- as.Date(y3$`Date Measured`,format ="%m/%d/%y")
 y4$`Date Measured` <- as.Date(y4$`Date Measured`,format = "%m/%d/%y")
+y5$`Date Measured` <- as.Date(y5$`Date Measured`,format = "%m/%d/%y")
 ```
 
 Merge all years' data frames together.
 ```{r}
-trees <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% bind_rows(.,y4) %>% filter(Site!="" & Site!="Puyallup") %>% droplevels()
+y5$`Tree Diameter (mm)` <- as.numeric(y5$`Tree Diameter (mm)`) 
+y5$`Tree Height (cm)` <- as.numeric(y5$`Tree Height (cm)`) 
+trees <- bind_rows(y1,y2) %>% bind_rows(.,y3) %>% bind_rows(.,y4) %>% bind_rows(.,y5) %>% filter(Site!="" & Site!="Puyallup") %>% droplevels()
 ```
 
 
@@ -152,7 +160,7 @@ trees <- trees %>%
 
 Check if health condition data between years is logical:
 
-1. If previous year's health condition is "Dead" then change following year's health conditon to dead
+1. If previous year's health condition is "Dead" then change following year's health condition to dead
 2. If previous year's health condition is "Dying" and following year's condition is "Missing", change "Missing" to "Dead"
 3. If most recent year's health condition is NA change that health condition to the previous year's
 4. Create a final health column to reflect the most recent year's health condition
